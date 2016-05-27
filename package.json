@@ -2,6 +2,7 @@
   "name": "seam-carving-js",
   "version": "1.0.0",
   "description": "Seam Carving linear algorithm for image compression",
+  "repository": "https://github.com/mfbx9da4/seam-carving-js.git",
   "main": "index.js",
   "dependencies": {
     "canvas": "^1.3.12",
@@ -13,7 +14,8 @@
     "gulp-util": "^3.0.7"
   },
   "scripts": {
-    "test": "gulp test"
+    "testOnce": "gulp test",
+    "test": "gulp"
   },
   "author": "David Alberto Adler dalberto.adler@gmail.com",
   "license": "MIT"
