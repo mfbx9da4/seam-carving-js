@@ -5,7 +5,16 @@ const GREEN = 1;
 const BLUE = 2;
 const BORDER_ENERGY = 1000;
 
+/** Seam carver removes low energy seams in an image from HTML5 canvas. */
 class SeamCarver {
+
+    /**
+     *
+     * Init seam carver
+     *
+     * @param {HMLT5 canvas} canvas canvas with image on it.
+     *
+     */
     constructor(canvas) {
         this.width = canvas.width;
         this.height = canvas.height;
@@ -30,6 +39,14 @@ class SeamCarver {
         this.createEnergyMatrix();
     }
 
+    /**
+     * Converts pixel to index.
+     *
+     * @param {number} x The x val
+     * @param {number} y The y val
+     * @return {number} Index of 1D array
+     *
+     */
     pixelToIndex(x, y) {
         if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
             throw new java.lang.IndexOutOfBoundsException();
@@ -60,6 +77,13 @@ class SeamCarver {
         return [red, green, blue];
     }
 
+    /**
+     * Energy for single pixel.
+     *
+     * @param {number} x The x val.
+     * @param {number} y The y val.
+     * @return {number} The energy val.
+     */
     energy(x, y) {
         if (x <= 0 || y <= 0 || x >= this.width-1 || y >= this.height-1) {
             return BORDER_ENERGY;
@@ -82,30 +106,35 @@ class SeamCarver {
     /**
      * Calculate energy_matrix information for pixel x,y.
      * Assumes x and y in range.
-    */
+     */
     recalculate(x, y) {
         var energy_cell = {};
 
         energy_cell.energy = this.energy(x, y);
         energy_cell.vminsum = Number.POSITIVE_INFINITY;
 
-        if (y  >= this.height-1) {
+        // last row
+        if (y >= this.height-1) {
             energy_cell.vminsum = energy_cell.energy;
             energy_cell.minx = 0;
         } else {
             var cursum = 0;
             var curminx = 0;
+
+            // below left
             if (x - 1 >= 0) {
                 energy_cell.vminsum = this.energy_matrix[x - 1][y + 1].vminsum + energy_cell.energy;
                 energy_cell.minx = x - 1;
             }
 
+            // below
             cursum = this.energy_matrix[x][y + 1].vminsum + energy_cell.energy;
             if (cursum < energy_cell.vminsum) {
                 energy_cell.vminsum = cursum;
                 energy_cell.minx = x;
             }
 
+            // below right
             if (x + 1 < this.width) {
                 cursum = this.energy_matrix[x + 1][y + 1].vminsum + energy_cell.energy;
                 if (cursum < energy_cell.vminsum) {
@@ -118,6 +147,19 @@ class SeamCarver {
         return energy_cell;
     }
 
+    /**
+     * Iterate from bottom to top. For each pixel calculate:
+     *     * The energy for the pixel.
+     *     * From the three pixels below the current pixel, calculate the
+     *       `min_x` pixel. The `min_x` pixel is the pixel with the smallest
+     *       cumulative energy (defined below).
+     *     * Set the cumulative energy for this pixel as the energy of this
+     *       pixel plus the cumulative energy of th `min_x` pixel.
+     *
+     * The cumulative energy of the pixels in the bottom row is simply its own
+     * energy.
+     *
+     */
     createEnergyMatrix() {
         // This has to be reverse order (bottom to top)
         for (var y = this.height; y >= 0; y--) {
