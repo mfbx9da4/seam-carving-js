@@ -7,7 +7,7 @@ var SeamCarver = require('./SeamCarver.js');
 var convertImageToCanvas = require('./convertImageToCanvas.js');
 
 describe('SeamCarver', function () {
-    function getSm(image, fn) {
+    function initSeamCarver(image, fn) {
         fs.readFile(__dirname + image, function(err, image){
             if (err) throw err;
             var img = new canvas.Image();
@@ -18,7 +18,7 @@ describe('SeamCarver', function () {
     };
 
     it('should set width, height and pixels correctly', function(done) {
-        getSm("/images/3x4.png", function(sm) {
+        initSeamCarver("/images/3x4.png", function(sm) {
             assert.equal(sm.width, 3);
             assert.equal(sm.height, 4);
             assert.equal(sm.picture.length, 12);
@@ -28,7 +28,7 @@ describe('SeamCarver', function () {
     });
 
     it('should give energy of pixel', function(done) {
-        getSm("/images/3x4.png", function(sm) {
+        initSeamCarver("/images/3x4.png", function(sm) {
             assert.equal(sm.energy(0, 0), 1000);
             assert.equal(sm.energy(0, 3), 1000);
             assert.equal(sm.energy(2, 0), 1000);
@@ -40,7 +40,7 @@ describe('SeamCarver', function () {
     });
 
     it('should create an energy matrix to help find seam', function(done) {
-        getSm("/images/3x4.png", function(sm) {
+        initSeamCarver("/images/3x4.png", function(sm) {
             assert.equal(sm.energy_matrix[0][3].energy, 1000);
             assert.equal(sm.energy_matrix[0][3].vminsum, 1000);
             assert.equal(sm.energy_matrix[0][3].minx, 0);
@@ -52,7 +52,7 @@ describe('SeamCarver', function () {
     });
 
     it('should calculate vertical seam  an energy matrix to help find seam', function(done) {
-        getSm("/images/6x5.png", function(sm) {
+        initSeamCarver("/images/6x5.png", function(sm) {
             assert.deepEqual(sm.findVerticalSeam(), [3, 4, 3, 2, 1]);
             done();
         });

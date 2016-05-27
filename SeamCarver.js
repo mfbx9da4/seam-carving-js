@@ -170,6 +170,10 @@ class SeamCarver {
         }
     }
 
+    /**
+     * Backtrack from smallest on first row to choosing always smallest child.
+     *
+     */
     findVerticalSeam() {
         var vseam = [];
 
