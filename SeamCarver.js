@@ -18,7 +18,8 @@ class SeamCarver {
     constructor(canvas) {
         this.width = canvas.width;
         this.height = canvas.height;
-        this.picture = [];
+        var buffer = new ArrayBuffer(2 * this.width * this.height);
+        this.picture = new Uint16Array(buffer);
         this.context = canvas.getContext("2d");
         for (var y = 0; y < this.height; y ++) {
             for (var x = 0; x < this.width; x ++) {
