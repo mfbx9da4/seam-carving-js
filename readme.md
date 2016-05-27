@@ -3,6 +3,7 @@
 OSX requires
 
     brew install pkg-config cairo libpng jpeg giflib
+    xcode-select --install # el capitain only
 
 Ubuntu 
 
