@@ -78,6 +78,14 @@ class SeamCarver {
         return [red, green, blue];
     }
 
+    isBorderPixel(x, y) {
+        return (x <= 0 || y <= 0 || x >= this.width-1 || y >= this.height-1);
+    }
+
+    pixelInRange(x, y) {
+        return (x >= 0 && y >= 0 && x <= this.width-1 && y <= this.height-1);
+    }
+
     /**
      * Energy for single pixel.
      *
@@ -86,7 +94,7 @@ class SeamCarver {
      * @return {number} The energy val.
      */
     energy(x, y) {
-        if (x <= 0 || y <= 0 || x >= this.width-1 || y >= this.height-1) {
+        if (this.isBorderPixel(x, y)) {
             return BORDER_ENERGY;
         }
         var xant = this.context.getImageData(x - 1, y, 1, 1).data;
@@ -129,10 +137,12 @@ class SeamCarver {
             }
 
             // below
-            cursum = this.energy_matrix[x][y + 1].vminsum + energy_cell.energy;
-            if (cursum < energy_cell.vminsum) {
-                energy_cell.vminsum = cursum;
-                energy_cell.minx = x;
+            if (x < this.width) {
+                cursum = this.energy_matrix[x][y + 1].vminsum + energy_cell.energy;
+                if (cursum < energy_cell.vminsum) {
+                    energy_cell.vminsum = cursum;
+                    energy_cell.minx = x;
+                }
             }
 
             // below right
@@ -208,7 +218,7 @@ class SeamCarver {
      *
      */
     removeVerticalSeam(vseam) {
-        for (var row = 0; row < vseam.length; row ++) {
+        for (var row = this.height - 1; row >= 0; row--) {
             var deletedCol = vseam[row];
 
             // Can ignore last column as we will delete it
@@ -220,6 +230,21 @@ class SeamCarver {
         }
         this.energy_matrix.splice(this.width - 1, 1);
         this.width--;
+
+        // now update energy matrix
+        // don't need to recalculate last row
+        for (var row = this.height - 2; row >= 0; row--) {
+            var deletedCol = vseam[row];
+
+            for (var i = -1; i < 2; i ++) {
+                var col = deletedCol + i;
+
+                if (this.pixelInRange(col, row)) {
+                    this.energy_matrix[col][row] = this.recalculate(col, row);
+                }
+            }
+
+        }
     }
 
     /**
