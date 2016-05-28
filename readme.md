@@ -21,3 +21,4 @@ Everyone
 
 - Iterate arrays in a CPU cache efficient way
 - Keep track of smallest on top row
+- Have two matrices, one for min_x and one for energies so that we can use typed arrays
