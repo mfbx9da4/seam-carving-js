@@ -16,3 +16,8 @@ Everyone
 ##Test
 
     npm run test
+
+##Optimizations
+
+- Iterate arrays in a CPU cache efficient way
+- Keep track of smallest on top row

@@ -163,7 +163,7 @@ class SeamCarver {
      */
     createEnergyMatrix() {
         // This has to be reverse order (bottom to top)
-        for (var y = this.height; y >= 0; y--) {
+        for (var y = this.height - 1; y >= 0; y--) {
             // This can be in any order ...
             for (var x = 0; x < this.width; x++) {
                 this.energy_matrix[x][y] = this.recalculate(x,y);
@@ -203,13 +203,38 @@ class SeamCarver {
     }
 
     /**
+     * Removes vertical seam.
+     * Recalculates pixels depending on removed pixel.
+     *
+     */
+    removeVerticalSeam(vseam) {
+        for (var row = 0; row < vseam.length; row ++) {
+            var deletedCol = vseam[row];
+
+            // Can ignore last column as we will delete it
+            for (var col = 0; col < this.width - 1; col ++) {
+                if (col >= deletedCol) {
+                    this.energy_matrix[col][row] = this.energy_matrix[col + 1][row];
+                }
+            }
+        }
+        this.energy_matrix.splice(this.width - 1, 1);
+        this.width--;
+    }
+
+    /**
      * Prints one of the values of the energy_matrix. Useful for debugging.
-    */
+     */
     printMatrix(field) {
         var line = "";
         for (var y = 0; y < this.height; y++) {
             for (var x = 0; x < this.width; x++) {
-                line += this.energy_matrix[x][y][field] + "\t";
+                var val = this.energy_matrix[x][y];
+                if (val && field in val) {
+                    line += val[field].toFixed(2) + "\t";
+                } else {
+                    line += '-----\t';
+                }
             }
             console.log(line);
             line = "";

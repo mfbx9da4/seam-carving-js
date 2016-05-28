@@ -22,7 +22,19 @@ describe('SeamCarver', function () {
             assert.equal(sm.width, 3);
             assert.equal(sm.height, 4);
             assert.equal(sm.picture.length, 12);
-            // assert.equal(sm.picture, [16737587, 16737689, 16737791, 16750899, 16751001, 16751103, 16763699, 16764057, 16764415, 16777011, 16777113, 16777215]);
+            assert.equal(sm.energy_matrix.length, 3);
+            assert.equal(sm.energy_matrix[0].length, 4, 'height incorrect');
+            done();
+        });
+    });
+
+    it('should set width, height and pixels correctly for 6x5', function(done) {
+        initSeamCarver("/images/6x5.png", function(sm) {
+            assert.equal(sm.width, 6);
+            assert.equal(sm.height, 5);
+            assert.equal(sm.picture.length, 30);
+            assert.equal(sm.energy_matrix.length, 6);
+            assert.equal(sm.energy_matrix[0].length, 5, 'height incorrect');
             done();
         });
     });
@@ -57,4 +69,21 @@ describe('SeamCarver', function () {
             done();
         });
     });
+
+    it('should remove a vertical seam', function(done) {
+        initSeamCarver("/images/6x5.png", function(sm) {
+            assert.equal(sm.energy_matrix.length, 6);
+            assert.equal(sm.energy_matrix[0].length, 5);
+            var vseam = [3, 4, 3, 2, 1];
+            sm.removeVerticalSeam(vseam);
+            sm.printMatrix('energy');
+            assert.equal(sm.energy_matrix.length, 5, 'did not remove one col');
+            sm.energy_matrix.forEach(function (col) {
+                assert.equal(col.length, 5);
+            });
+            done();
+        });
+    });
+
+    it('should throw if vseam invalid')
 });
