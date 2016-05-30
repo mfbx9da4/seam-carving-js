@@ -21,6 +21,7 @@ class SeamCarver {
         var buffer = new ArrayBuffer(2 * this.width * this.height);
         this.picture = new Uint16Array(buffer);
         this.context = canvas.getContext("2d");
+        console.log('got context');
         for (var y = 0; y < this.height; y ++) {
             for (var x = 0; x < this.width; x ++) {
                 var color = this.context.getImageData(x, y, 1, 1).data;
@@ -28,6 +29,8 @@ class SeamCarver {
                 this.picture[this.pixelToIndex(x, y)] = rgb;
             }
         }
+
+        console.log('got rgb of picture');
 
         // Simple implementation of energy matrix as array of arrays.
         // Because we need to remove items, when removing the seam,
@@ -37,7 +40,11 @@ class SeamCarver {
             this.energy_matrix[i] = new Array(this.height);
         }
 
+        console.log('init energy matrix');
+
         this.createEnergyMatrix();
+
+        console.log('created energy matrix');
     }
 
     /**

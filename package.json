@@ -10,8 +10,10 @@
     "gulp-mocha": "^2.2.0"
   },
   "devDependencies": {
+    "browserify": "^13.0.1",
     "chai": "^3.5.0",
-    "gulp-util": "^3.0.7"
+    "gulp-util": "^3.0.7",
+    "vinyl-source-stream": "^1.1.0"
   },
   "scripts": {
     "testOnce": "gulp test",

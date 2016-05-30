@@ -75,6 +75,7 @@ describe('SeamCarver', function () {
             assert.equal(sm.energy_matrix.length, 6);
             assert.equal(sm.energy_matrix[0].length, 5);
             var vseam = [3, 4, 3, 2, 1];
+            sm.printMatrix('energy');
             sm.removeVerticalSeam(vseam);
             sm.printMatrix('energy');
             assert.equal(sm.energy_matrix.length, 5, 'did not remove one col');
