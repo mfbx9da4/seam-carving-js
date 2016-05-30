@@ -22,4 +22,9 @@ Everyone
 - Iterate arrays in a CPU cache efficient way
 - Keep track of smallest on top row
 - Have two matrices, one for min_x and one for energies so that we can use typed arrays
-- `getImageData()` may be more efficient than iterating all the pixels
+- Could convert picture rgba array to [`Uint32Array` rgb number array](https://hacks.mozilla.org/2011/12/faster-canvas-pixel-manipulation-with-typed-arrays/) to save space
+- Logical deletes
+
+##Todo
+- Test remove vertical seam
+- Draw energy

@@ -21,7 +21,8 @@ class SeamCarver {
         this.height = canvas.height;
         this.context = canvas.getContext("2d");
         console.log('got context');
-        this.picture = this.context.getImageData(0, 0, this.width, this.height).data;
+        this.imageData = this.context.getImageData(0, 0, this.width, this.height);
+        this.picture = this.imageData.data;
         console.log('got rgb of picture');
 
         // Simple implementation of energy matrix as array of arrays.
@@ -224,19 +225,39 @@ class SeamCarver {
      *
      */
     removeVerticalSeam(vseam) {
+        this.imageData = this.context.createImageData(this.width - 1, this.height);
         for (var row = this.height - 1; row >= 0; row--) {
             var deletedCol = vseam[row];
+            console.log('deleted is', deletedCol);
 
-            // TODO: Need to update picture not energy matrix!
+            // copy across pixels before seam col
+            for (var col = 0; col < deletedCol; col ++) {
+                var oldPos = this.pixelToIndex(col, row);
+                var pos = oldPos - (row * 4)
+                for (var i = 0; i < 4; i ++) {
+                    this.imageData.data[pos + i] = this.picture[oldPos + i];
+                }
+            }
+
+            // TODO: Need to update picture as well
             // Start at deleted col
             // Can ignore last column as we will delete it
             for (var col = deletedCol; col < this.width - 1; col ++) {
-                this.picture[this.pixelToIndex(col, row)] = this.picture[this.pixelToIndex(col + 1, row)];
+
+                // copy across pixels after seam col
+                var pos = this.pixelToIndex(col, row) - (row * 4);
+                var pos_right = this.pixelToIndex(col + 1, row);
+                for (var i = 0; i < 4; i ++) {
+                    this.imageData.data[pos + i] = this.picture[pos_right + i];
+                }
+
+                // copy across energy_matrix
                 this.energy_matrix[col][row] = this.energy_matrix[col + 1][row];
             }
         }
         // TODO: Delete last column of picture
         this.energy_matrix.splice(this.width - 1, 1);
+        this.picture = this.imageData.data;
         this.width--;
 
         // now update energy matrix
@@ -253,6 +274,10 @@ class SeamCarver {
             }
 
         }
+    }
+
+    reDrawImage() {
+        this.context.putImageData(this.imageData, 0, 0);
     }
 
     /**
@@ -281,34 +306,42 @@ module.exports = SeamCarver;
 "use strict";
 
 var SeamCarver = require('../../../SeamCarver');
-var image = new Image();
-var canvas = document.querySelector('canvas.image');
+window.image = new Image();
+window.canvas = document.querySelector('canvas.image');
+window.findSeam = function (ctx) {
+	var vseam = smc.findVerticalSeam();
+	// draw vertical seam
+	for (var y = 0; y < vseam.length; y ++) {
+		var x = vseam[y];
+		ctx.strokeStyle = "#32cd32";
+		ctx.lineWidth = 1;
+		ctx.strokeRect(x, y, 1, 1);
+	}
+	return vseam;
+};
+
+window.removeSeam = function (vseam) {
+	smc.removeVerticalSeam(vseam);
+	smc.reDrawImage();
+};
+
 image.onload = function () {
 	canvas.width = image.width;
 	canvas.height = image.height;
 	var ctx = canvas.getContext("2d");
 	ctx.drawImage(image, 0, 0);
-	var smc = new SeamCarver(canvas);
+	window.smc = new SeamCarver(canvas);
 
-	var vseam = smc.findVerticalSeam();
-	console.log(vseam);
-
-	// draw vertical seam
-	for (var y = 0; y < vseam.length; y ++) {
-		var x = vseam[y];
-		ctx.strokeStyle = "#32cd32";
-		ctx.strokeRect(x, y, 1, 1);
-	}
-
-	smc.removeVerticalSeam(vseam);
+	var vseam = findSeam(ctx);
 
 	// TODO: draw energy
 	// TODO: redraw image without vseam
 };
 
+// image.src = 'images/3x4.png';
 // image.src = 'images/6x5.png';
-// image.src = 'images/70x70.png';
-image.src = 'images/chameleon.png';
+image.src = 'images/70x70.png';
+// image.src = 'images/chameleon.png';
 
 
 

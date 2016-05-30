@@ -21,7 +21,7 @@ describe('SeamCarver', function () {
         initSeamCarver("/images/3x4.png", function(sm) {
             assert.equal(sm.width, 3);
             assert.equal(sm.height, 4);
-            assert.equal(sm.picture.length, 12);
+            assert.equal(sm.picture.length, 12 * 4);
             assert.equal(sm.energy_matrix.length, 3);
             assert.equal(sm.energy_matrix[0].length, 4, 'height incorrect');
             done();
@@ -32,7 +32,7 @@ describe('SeamCarver', function () {
         initSeamCarver("/images/6x5.png", function(sm) {
             assert.equal(sm.width, 6);
             assert.equal(sm.height, 5);
-            assert.equal(sm.picture.length, 30);
+            assert.equal(sm.picture.length, 30 * 4);
             assert.equal(sm.energy_matrix.length, 6);
             assert.equal(sm.energy_matrix[0].length, 5, 'height incorrect');
             done();
@@ -78,10 +78,14 @@ describe('SeamCarver', function () {
             sm.printMatrix('energy');
             sm.removeVerticalSeam(vseam);
             sm.printMatrix('energy');
-            assert.equal(sm.energy_matrix.length, 5, 'did not remove one col');
+            assert.equal(sm.energy_matrix.length, 5,
+                         'Did not remove one col from energy_matrix');
             sm.energy_matrix.forEach(function (col) {
                 assert.equal(col.length, 5);
             });
+
+            assert.equal(sm.picture.length, 5 * 5 * 4,
+                         'Did not remove col from picture')
             done();
         });
     });
