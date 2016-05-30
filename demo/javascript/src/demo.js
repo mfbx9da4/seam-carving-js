@@ -9,22 +9,25 @@ image.onload = function () {
 	var ctx = canvas.getContext("2d");
 	ctx.drawImage(image, 0, 0);
 	var smc = new SeamCarver(canvas);
+
 	var vseam = smc.findVerticalSeam();
 	console.log(vseam);
 
 	// draw vertical seam
 	for (var y = 0; y < vseam.length; y ++) {
 		var x = vseam[y];
-		ctx.strokeStyle="#32cd32";
-		ctx.strokeRect(x,y, 1, 1);
+		ctx.strokeStyle = "#32cd32";
+		ctx.strokeRect(x, y, 1, 1);
 	}
 
 	smc.removeVerticalSeam(vseam);
-	// redraw image without vseam
-	// draw energy
+
+	// TODO: draw energy
+	// TODO: redraw image without vseam
 };
+
+// image.src = 'images/6x5.png';
+// image.src = 'images/70x70.png';
 image.src = 'images/chameleon.png';
-image.src = 'images/6x5.png';
-image.src = 'images/70x70.png';
 
 

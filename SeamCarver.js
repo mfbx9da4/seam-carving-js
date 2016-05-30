@@ -18,18 +18,9 @@ class SeamCarver {
     constructor(canvas) {
         this.width = canvas.width;
         this.height = canvas.height;
-        var buffer = new ArrayBuffer(2 * this.width * this.height);
-        this.picture = new Uint16Array(buffer);
         this.context = canvas.getContext("2d");
         console.log('got context');
-        for (var y = 0; y < this.height; y ++) {
-            for (var x = 0; x < this.width; x ++) {
-                var color = this.context.getImageData(x, y, 1, 1).data;
-                var rgb = this.rgbToNum(color[0], color[1], color[2]);
-                this.picture[this.pixelToIndex(x, y)] = rgb;
-            }
-        }
-
+        this.picture = this.context.getImageData(0, 0, this.width, this.height).data;
         console.log('got rgb of picture');
 
         // Simple implementation of energy matrix as array of arrays.
@@ -59,7 +50,8 @@ class SeamCarver {
         if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
             throw new java.lang.IndexOutOfBoundsException();
         }
-        return (y * this.width) + x;
+        // * 4 for rgba
+        return ((y * this.width) + x) * 4;
     }
 
     indexToX(index) {
@@ -79,9 +71,9 @@ class SeamCarver {
     }
 
     numToRgb(num) {
-        var red = (rgb >> 16) & 0xFF;
-        var green = (rgb >> 8) & 0xFF;
-        var blue = rgb & 0xFF;
+        var red = (num >> 16) & 0xFF;
+        var green = (num >> 8) & 0xFF;
+        var blue = num & 0xFF;
         return [red, green, blue];
     }
 
@@ -104,12 +96,17 @@ class SeamCarver {
         if (this.isBorderPixel(x, y)) {
             return BORDER_ENERGY;
         }
-        var xant = this.context.getImageData(x - 1, y, 1, 1).data;
-        var xpost = this.context.getImageData(x + 1, y, 1, 1).data;
-        var yant = this.context.getImageData(x, y - 1, 1, 1).data;
-        var ypost = this.context.getImageData(x, y + 1, 1, 1).data;
 
-        return Math.sqrt(
+        var pos = this.pixelToIndex(x - 1, y);
+        var xant  = Array.prototype.slice.call(this.picture, pos, pos + 3);
+        var pos = this.pixelToIndex(x + 1, y);
+        var xpost = Array.prototype.slice.call(this.picture, pos, pos + 3);
+        var pos = this.pixelToIndex(x, y - 1);
+        var yant  = Array.prototype.slice.call(this.picture, pos, pos + 3);
+        var pos = this.pixelToIndex(x, y + 1);
+        var ypost = Array.prototype.slice.call(this.picture, pos, pos + 3);
+
+        var score = Math.sqrt(
             (xpost[RED] - xant[RED])*(xpost[RED] - xant[RED]) +
             (xpost[GREEN] - xant[GREEN])*(xpost[GREEN] - xant[GREEN]) +
             (xpost[BLUE] - xant[BLUE])*(xpost[BLUE] - xant[BLUE]) +
@@ -117,6 +114,7 @@ class SeamCarver {
             (ypost[GREEN] - yant[GREEN])*(ypost[GREEN] - yant[GREEN]) +
             (ypost[BLUE] - yant[BLUE])*(ypost[BLUE] - yant[BLUE])
         );
+        return score;
     }
 
     /**
@@ -228,13 +226,15 @@ class SeamCarver {
         for (var row = this.height - 1; row >= 0; row--) {
             var deletedCol = vseam[row];
 
+            // TODO: Need to update picture not energy matrix!
+            // Start at deleted col
             // Can ignore last column as we will delete it
-            for (var col = 0; col < this.width - 1; col ++) {
-                if (col >= deletedCol) {
-                    this.energy_matrix[col][row] = this.energy_matrix[col + 1][row];
-                }
+            for (var col = deletedCol; col < this.width - 1; col ++) {
+                this.picture[this.pixelToIndex(col, row)] = this.picture[this.pixelToIndex(col + 1, row)];
+                this.energy_matrix[col][row] = this.energy_matrix[col + 1][row];
             }
         }
+        // TODO: Delete last column of picture
         this.energy_matrix.splice(this.width - 1, 1);
         this.width--;
 
