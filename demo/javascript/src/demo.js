@@ -32,7 +32,7 @@ image.onload = function () {
 		setTimeout(function () {
 			removeSeam(vseam)
 			iterate();
-		}, 100);
+		}, 0);
 	}
 	iterate();
 
