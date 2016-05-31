@@ -6,7 +6,7 @@ var canvas = require('canvas');
 var SeamCarver = require('./SeamCarver.js');
 var convertImageToCanvas = require('./convertImageToCanvas.js');
 
-describe('SeamCarver', function () {
+describe('SeamCarver', function() {
     function initSeamCarver(image, fn) {
         fs.readFile(__dirname + image, function(err, image){
             if (err) throw err;
@@ -73,19 +73,51 @@ describe('SeamCarver', function () {
     it('should remove a vertical seam', function(done) {
         initSeamCarver("/images/6x5.png", function(sm) {
             assert.equal(sm.energy_matrix.length, 6);
-            assert.equal(sm.energy_matrix[0].length, 5);
+            sm.energy_matrix.forEach(function(col) {assert.equal(col.length, 5);});
             var vseam = [3, 4, 3, 2, 1];
+            assert.deepEqual(vseam, sm.findVerticalSeam());
+            sm.printMatrix('rgb');
             sm.printMatrix('energy');
+            sm.printMatrix('minx');
+
+            // remove first seam
             sm.removeVerticalSeam(vseam);
+            console.log('remove', vseam);
+            sm.printMatrix('rgb');
             sm.printMatrix('energy');
+            sm.printMatrix('minx');
+
             assert.equal(sm.energy_matrix.length, 5,
                          'Did not remove one col from energy_matrix');
-            sm.energy_matrix.forEach(function (col) {
-                assert.equal(col.length, 5);
-            });
+            sm.energy_matrix.forEach(function(col) {assert.equal(col.length, 5);});
 
             assert.equal(sm.picture.length, 5 * 5 * 4,
-                         'Did not remove col from picture')
+                         'Did not remove col from picture');
+
+            // remove second seam
+            vseam = sm.findVerticalSeam()
+            sm.removeVerticalSeam(vseam);
+            console.log('remove', vseam);
+            sm.printMatrix('rgb');
+            sm.printMatrix('energy');
+            sm.printMatrix('minx');
+
+
+            assert.equal(sm.energy_matrix.length, 4,
+                         'Did not remove one col from energy_matrix');
+            sm.energy_matrix.forEach(function(col) {assert.equal(col.length, 5);});
+
+            assert.equal(sm.picture.length, 4 * 5 * 4,
+                         'Did not remove col from picture');
+
+            // remove third seam
+            vseam = sm.findVerticalSeam()
+            sm.removeVerticalSeam(vseam);
+            console.log('remove', vseam);
+            sm.printMatrix('rgb');
+            sm.printMatrix('energy');
+            sm.printMatrix('minx');
+
             done();
         });
     });

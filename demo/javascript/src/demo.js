@@ -24,19 +24,26 @@ window.removeSeam = function (vseam) {
 image.onload = function () {
 	canvas.width = image.width;
 	canvas.height = image.height;
-	var ctx = canvas.getContext("2d");
+	window.ctx = canvas.getContext("2d");
 	ctx.drawImage(image, 0, 0);
 	window.smc = new SeamCarver(canvas);
 
-	var vseam = findSeam(ctx);
+	var iterate = function () {
+		var vseam = findSeam(ctx);
+		setTimeout(function () {
+			removeSeam(vseam)
+			iterate();
+		}, 0);
+	}
+	iterate();
 
 	// TODO: draw energy
-	// TODO: redraw image without vseam
 };
 
 // image.src = 'images/3x4.png';
 // image.src = 'images/6x5.png';
 image.src = 'images/70x70.png';
-// image.src = 'images/chameleon.png';
+image.src = 'images/chameleon.png';
+image.src = 'images/HJocean.png';
 
 
