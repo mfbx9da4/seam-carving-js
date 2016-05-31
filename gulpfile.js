@@ -20,5 +20,5 @@ gulp.task('test', function() {
 });
 
 gulp.task('default', function() {
-    gulp.watch(['./**/*.js'], ['browserify', 'test']);
+    gulp.watch(['./**/*.js', './*.js'], ['browserify', 'test']);
 });
