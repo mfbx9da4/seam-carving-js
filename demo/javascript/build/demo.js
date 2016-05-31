@@ -365,13 +365,13 @@ image.onload = function () {
 	iterate();
 
 	// TODO: draw energy
-	// TODO: redraw image without vseam
 };
 
 // image.src = 'images/3x4.png';
 // image.src = 'images/6x5.png';
 image.src = 'images/70x70.png';
 image.src = 'images/chameleon.png';
+image.src = 'images/HJocean.png';
 
 
 

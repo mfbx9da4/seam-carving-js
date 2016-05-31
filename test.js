@@ -78,14 +78,14 @@ describe('SeamCarver', function() {
             assert.deepEqual(vseam, sm.findVerticalSeam());
             sm.printMatrix('rgb');
             sm.printMatrix('energy');
-            sm.printMatrix('min_x');
+            sm.printMatrix('minx');
 
             // remove first seam
             sm.removeVerticalSeam(vseam);
             console.log('remove', vseam);
             sm.printMatrix('rgb');
             sm.printMatrix('energy');
-            sm.printMatrix('min_x');
+            sm.printMatrix('minx');
 
             assert.equal(sm.energy_matrix.length, 5,
                          'Did not remove one col from energy_matrix');
@@ -100,7 +100,7 @@ describe('SeamCarver', function() {
             console.log('remove', vseam);
             sm.printMatrix('rgb');
             sm.printMatrix('energy');
-            sm.printMatrix('min_x');
+            sm.printMatrix('minx');
 
 
             assert.equal(sm.energy_matrix.length, 4,
@@ -116,7 +116,7 @@ describe('SeamCarver', function() {
             console.log('remove', vseam);
             sm.printMatrix('rgb');
             sm.printMatrix('energy');
-            sm.printMatrix('min_x');
+            sm.printMatrix('minx');
 
             done();
         });
