@@ -336,9 +336,7 @@ class SeamCarver {
                 // TODO: do I need to enqueue all children
                 // found better path from parent
                 // so enqueue three affected children from row above
-                // console.log(col, row);
                 for (var i = Math.max(col - 1, 0); i < Math.min(col + 1, lastCol); i ++) {
-                    // console.log(i, row);
                     queue.push(this.pixelToIndex(i, row - 1));
                 }
             }
