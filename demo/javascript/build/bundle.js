@@ -49,7 +49,7 @@ class SeamCarver {
      */
     pixelToIndex(x, y) {
         if (x < 0 || x >= (this.width * 4) || y < 0 || y >= this.height) {
-            throw new Error('IndexOutOfBoundsException');
+            throw new Error('IndexOutOfBoundsException : ' +  x + ',' + y);
         }
         // * 4 for rgba
         return ((y * this.width) + x) * 4;
@@ -60,7 +60,7 @@ class SeamCarver {
     }
 
     indexToY(index) {
-        return parseInt(index / this.width);
+        return parseInt(index / (this.width * 4));
     }
 
 
@@ -300,6 +300,8 @@ class SeamCarver {
     recalculateVminsumForAffectedPixels(queue) {
         var marked = {};
         var maxRow = -1;
+        // used later in loop so as not to go past borders
+        var lastCol = (this.width * 4) - 1;
 
         while (queue.length > 0) {
 
@@ -321,7 +323,7 @@ class SeamCarver {
             node.vminsum = -1;
 
             // check three parents in row below
-            for (var i = Math.max(col - 1, 0); i < Math.min(col + 1, (this.width - 1) * 4); i ++) {
+            for (var i = Math.max(col - 1, 0); i < Math.min(col + 1, lastCol); i ++) {
                 var parent = this.energy_matrix[i][row + 1];
                 var new_vminsum = parent.vminsum + node.energy;
 
@@ -331,12 +333,12 @@ class SeamCarver {
                 }
             }
 
-            if (oldVminsum !== node.vminsum) {
+            if (oldVminsum !== node.vminsum && row > 0) {
                 // TODO: do I need to enqueue all children
                 // found better path from parent
                 // so enqueue three affected children from row above
                 // console.log(col, row);
-                for (var i = Math.max(col - 1, 0); i < Math.min(col + 1, (this.width - 1) * 4); i ++) {
+                for (var i = Math.max(col - 1, 0); i < Math.min(col + 1, lastCol); i ++) {
                     // console.log(i, row);
                     queue.push(this.pixelToIndex(i, row - 1));
                 }
