@@ -20,10 +20,8 @@ class SeamCarver {
         this.width = canvas.width;
         this.height = canvas.height;
         this.context = canvas.getContext("2d");
-        console.log('got context');
         this.imageData = this.context.getImageData(0, 0, this.width, this.height);
         this.picture = this.imageData.data;
-        console.log('got rgb of picture');
 
         // Simple implementation of energy matrix as array of arrays.
         // Because we need to remove items, when removing the seam,
@@ -33,11 +31,11 @@ class SeamCarver {
             this.energy_matrix[i] = new Array(this.height);
         }
 
-        console.log('init energy matrix');
+        console.log('calculating energy matrix values ...');
 
         this.createEnergyMatrix();
 
-        console.log('created energy matrix');
+        console.log('done');
     }
 
     /**
@@ -221,8 +219,12 @@ class SeamCarver {
      * Removes vertical seam.
      * Recalculates pixels depending on removed pixel.
      *
+     * TODO: refactor into several methods
      */
     removeVerticalSeam(vseam) {
+        /**
+         * remove seam from picture and energy_matrix
+         */
         this.imageData = this.context.createImageData(this.width - 1, this.height);
         for (var row = this.height - 1; row >= 0; row--) {
             var deletedCol = vseam[row];
@@ -258,13 +260,76 @@ class SeamCarver {
         this.picture = this.imageData.data;
         this.width--;
 
-        // now update energy matrix
-        for (var row = this.height - 1; row >= 0; row--) {
-            for (var col = 0; col < this.width; col++) {
-                // TODO recalculate energy only when necessary: pixels adjacent (up, down and both sides) to the removed seam.
-                this.energy_matrix[col][row] = this.recalculate(col, row);
+
+        /**
+         * Recalculate energy for affected pixels
+         */
+        var queue = [];
+        // recalculate energy only when necessary: pixels adjacent
+        // (up, down and both sides) to the removed seam.
+        for (var row = this.height - 2; row >= 0; row--) {
+            var deletedCol = vseam[row];
+
+            // TODO: check this covers all cases (up, down, left, right)
+            for (var i = -2; i < 3; i ++) {
+                var col = deletedCol + i;
+
+                if (this.pixelInRange(col, row)) {
+                    var oldEnergy = this.energy_matrix[col][row];
+                    var newEnergy = this.recalculate(col, row);
+                    this.energy_matrix[col][row] = newEnergy;
+
+                    if (newEnergy < oldEnergy) {
+                        // TODO: could enqueue the cols, in row order
+                        // so that when we pop off the queue we ensure
+                        // topological order
+                        // enqueue affected pixel
+                        queue.push(this.pixelToIndex(col, row));
+                    }
+                }
             }
         }
+
+        /**
+         * Recalculate vminsum for affected pixels
+         */
+        var marked = {};
+        while (queue.length > 0) {
+            // TODO: may need to ensure topological order
+            var pixelIndex = queue.shift();
+
+            // already explored this pixel
+            if (marked[pixelToIndex]) continue;
+
+            marked[pixelIndex] = true;
+
+            var col = this.indexToX(pixelIndex);
+            var row = this.indexToY(pixelIndex);
+            var node = this.energy_matrix[col][row];
+
+            // check three parents in row below
+            for (var i = Math.max(col -1, 0); i < Math.min(col + 1, this.width - 1); i ++) {
+                var parent = this.energy_matrix[i][row + 1];
+                var new_vminsum = parent.vminsum + node.energy;
+                if (new_vminsum < node.vminsum) {
+                    node.vminsum = new_vminsum;
+                    // found better path from parent
+                    // so enqueue three affected children from row above
+                    for (var i = Math.max(col -1, 0); i < Math.min(col + 1, this.width - 1); i ++) {
+                        queue.push(this.pixelToIndex(i, row - 1));
+                    }
+
+                }
+            }
+        }
+
+        // now update energy matrix
+        // for (var row = this.height - 1; row >= 0; row--) {
+        //     for (var col = 0; col < this.width; col++) {
+        //         // TODO: enqueue affected pixels and minimally relax their descendants
+        //         this.energy_matrix[col][row] = this.recalculate(col, row);
+        //     }
+        // }
     }
 
     reDrawImage() {

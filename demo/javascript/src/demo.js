@@ -43,6 +43,6 @@ image.onload = function () {
 // image.src = 'images/6x5.png';
 image.src = 'images/70x70.png';
 image.src = 'images/chameleon.png';
-image.src = 'images/HJocean.png';
+// image.src = 'images/HJocean.png';
 
 
