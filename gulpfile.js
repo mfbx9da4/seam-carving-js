@@ -7,7 +7,7 @@ var source = require('vinyl-source-stream');
 gulp.task('browserify', function() {
     return browserify('./demo/javascript/src/demo.js')
         .bundle()
-        .pipe(source('demo.js'))
+        .pipe(source('bundle.js'))
         .pipe(gulp.dest('./demo/javascript/build/'));
 });
 

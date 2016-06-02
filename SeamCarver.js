@@ -55,11 +55,11 @@ class SeamCarver {
     }
 
     indexToX(index) {
-        return index % this.width;
+        return parseInt((index / 4) % this.width);
     }
 
     indexToY(index) {
-        return index / this.width;
+        return parseInt((index / 4) / this.width);
     }
 
 
@@ -216,15 +216,11 @@ class SeamCarver {
     }
 
     /**
-     * Removes vertical seam.
-     * Recalculates pixels depending on removed pixel.
+     * Remove pixels from rgb, energy and vminsum representations
+     * of image.
      *
-     * TODO: refactor into several methods
      */
-    removeVerticalSeam(vseam) {
-        /**
-         * remove seam from picture and energy_matrix
-         */
+    removePixelsFromDataStructures(vseam) {
         this.imageData = this.context.createImageData(this.width - 1, this.height);
         for (var row = this.height - 1; row >= 0; row--) {
             var deletedCol = vseam[row];
@@ -259,14 +255,22 @@ class SeamCarver {
         this.energy_matrix.splice(this.width - 1, 1)
         this.picture = this.imageData.data;
         this.width--;
+    }
 
-
-        /**
-         * Recalculate energy for affected pixels
-         */
+    /**
+     * Recalculate energy only when necessary: pixels adjacent
+     * (up, down and both sides) to the removed seam, ie the affected
+     * pixels.
+     * For any affected pixel, if the new energy is less than the previous one
+     * it's vmin sum must be recalculated therefore it is added to an array
+     * and returned by this method.
+     *
+     * @return {list} List of affected pixels for which the vminsum may be affected.
+     */
+    recalculateEnergiesAndFindAffectedPixels(vseam) {
         var queue = [];
-        // recalculate energy only when necessary: pixels adjacent
-        // (up, down and both sides) to the removed seam.
+
+
         for (var row = this.height - 2; row >= 0; row--) {
             var deletedCol = vseam[row];
 
@@ -289,17 +293,26 @@ class SeamCarver {
                 }
             }
         }
+        return queue;
+    }
 
-        /**
-         * Recalculate vminsum for affected pixels
-         */
+    /**
+     * Recalculate vminsum for affected pixels
+     */
+    recalculateVminsumForAffectedPixels(queue) {
         var marked = {};
+        var maxRow = -1;
+
         while (queue.length > 0) {
-            // TODO: may need to ensure topological order
+
+            // This iterates in topological order because:
+            //  * The inital queue was compiled while iterating by row.
+            //  * We are iterating by BFS, ie children are at the end of the
+            //  queue.
             var pixelIndex = queue.shift();
 
             // already explored this pixel
-            if (marked[pixelToIndex]) continue;
+            if (marked[pixelIndex]) continue;
 
             marked[pixelIndex] = true;
 
@@ -322,20 +335,26 @@ class SeamCarver {
                 }
             }
         }
+    }
 
-        // now update energy matrix
-        // for (var row = this.height - 1; row >= 0; row--) {
-        //     for (var col = 0; col < this.width; col++) {
-        //         // TODO: enqueue affected pixels and minimally relax their descendants
-        //         this.energy_matrix[col][row] = this.recalculate(col, row);
-        //     }
-        // }
+    /**
+     * Removes vertical seam.
+     * Recalculates pixels depending on removed pixel.
+     */
+    removeVerticalSeam(vseam) {
+        this.removePixelsFromDataStructures(vseam);
+
+        var affectedPixels = this.recalculateEnergiesAndFindAffectedPixels(vseam);
+
+        this.recalculateVminsumForAffectedPixels(affectedPixels);
     }
 
     reDrawImage() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.canvas.width = this.imageData.width;
         this.canvas.height = this.imageData.height;
+        this.canvas.style.width = this.imageData.width + 'px';
+        this.canvas.style.height = this.imageData.height + 'px';
         this.context.putImageData(this.imageData, 0, 0);
     }
 
