@@ -47,8 +47,8 @@ class SeamCarver {
      *
      */
     pixelToIndex(x, y) {
-        if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
-            throw new java.lang.IndexOutOfBoundsException();
+        if (x < 0 || x >= (this.width * 4) || y < 0 || y >= this.height) {
+            throw new Error('IndexOutOfBoundsException');
         }
         // * 4 for rgba
         return ((y * this.width) + x) * 4;
@@ -59,7 +59,7 @@ class SeamCarver {
     }
 
     indexToY(index) {
-        return parseInt((index / 4) / this.width);
+        return parseInt(index / this.width);
     }
 
 
@@ -270,7 +270,6 @@ class SeamCarver {
     recalculateEnergiesAndFindAffectedPixels(vseam) {
         var queue = [];
 
-
         for (var row = this.height - 2; row >= 0; row--) {
             var deletedCol = vseam[row];
 
@@ -283,13 +282,11 @@ class SeamCarver {
                     var newValue = this.recalculate(col, row);
                     this.energy_matrix[col][row] = newValue;
 
-                    if (newValue.energy < oldValue.energy) {
-                        // TODO: could enqueue the cols, in row order
-                        // so that when we pop off the queue we ensure
-                        // topological order
-                        // enqueue affected pixel
-                        queue.push(this.pixelToIndex(col, row));
-                    }
+                    // TODO: could enqueue the cols, in row order
+                    // so that when we pop off the queue we ensure
+                    // topological order
+                    // enqueue affected pixel
+                    queue.push(this.pixelToIndex(col, row));
                 }
             }
         }
@@ -319,19 +316,28 @@ class SeamCarver {
             var col = this.indexToX(pixelIndex);
             var row = this.indexToY(pixelIndex);
             var node = this.energy_matrix[col][row];
+            var oldVminsum = node.vminsum;
+            node.vminsum = -1;
 
             // check three parents in row below
-            for (var i = Math.max(col -1, 0); i < Math.min(col + 1, this.width - 1); i ++) {
+            for (var i = Math.max(col - 1, 0); i < Math.min(col + 1, (this.width - 1) * 4); i ++) {
                 var parent = this.energy_matrix[i][row + 1];
                 var new_vminsum = parent.vminsum + node.energy;
-                if (new_vminsum < node.vminsum) {
-                    node.vminsum = new_vminsum;
-                    // found better path from parent
-                    // so enqueue three affected children from row above
-                    for (var i = Math.max(col -1, 0); i < Math.min(col + 1, this.width - 1); i ++) {
-                        queue.push(this.pixelToIndex(i, row - 1));
-                    }
 
+                // TODO: do I always need to update the vminsum for this node?
+                if (new_vminsum < node.vminsum || node.vminsum === -1) {
+                    node.vminsum = new_vminsum;
+                }
+            }
+
+            if (oldVminsum !== node.vminsum) {
+                // TODO: do I need to enqueue all children
+                // found better path from parent
+                // so enqueue three affected children from row above
+                // console.log(col, row);
+                for (var i = Math.max(col - 1, 0); i < Math.min(col + 1, (this.width - 1) * 4); i ++) {
+                    // console.log(i, row);
+                    queue.push(this.pixelToIndex(i, row - 1));
                 }
             }
         }
