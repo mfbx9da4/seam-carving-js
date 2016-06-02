@@ -99,22 +99,20 @@ class SeamCarver {
             return BORDER_ENERGY;
         }
 
-        var pos = this.pixelToIndex(x - 1, y);
-        var xant  = Array.prototype.slice.call(this.picture, pos, pos + 3);
-        var pos = this.pixelToIndex(x + 1, y);
-        var xpost = Array.prototype.slice.call(this.picture, pos, pos + 3);
-        var pos = this.pixelToIndex(x, y - 1);
-        var yant  = Array.prototype.slice.call(this.picture, pos, pos + 3);
-        var pos = this.pixelToIndex(x, y + 1);
-        var ypost = Array.prototype.slice.call(this.picture, pos, pos + 3);
+        var pos_xant = this.pixelToIndex(x - 1, y);
+        var pos_xpost = this.pixelToIndex(x + 1, y);
+        var pos_yant = this.pixelToIndex(x, y - 1);
+        var pos_ypost = this.pixelToIndex(x, y + 1);
+
+        var p = this.picture; // Just to make it more readable ...
 
         var score = Math.sqrt(
-            (xpost[RED] - xant[RED])*(xpost[RED] - xant[RED]) +
-            (xpost[GREEN] - xant[GREEN])*(xpost[GREEN] - xant[GREEN]) +
-            (xpost[BLUE] - xant[BLUE])*(xpost[BLUE] - xant[BLUE]) +
-            (ypost[RED] - yant[RED])*(ypost[RED] - yant[RED]) +
-            (ypost[GREEN] - yant[GREEN])*(ypost[GREEN] - yant[GREEN]) +
-            (ypost[BLUE] - yant[BLUE])*(ypost[BLUE] - yant[BLUE])
+            (p[pos_xpost+RED] - p[pos_xant+RED])*(p[pos_xpost+RED] - p[pos_xant+RED]) +
+            (p[pos_xpost+GREEN] - p[pos_xant+GREEN])*(p[pos_xpost+GREEN] - p[pos_xant+GREEN]) +
+            (p[pos_xpost+BLUE] - p[pos_xant+BLUE])*(p[pos_xpost+BLUE] - p[pos_xant+BLUE]) +
+            (p[pos_ypost+RED] - p[pos_yant+RED])*(p[pos_ypost+RED] - p[pos_yant+RED]) +
+            (p[pos_ypost+GREEN] - p[pos_yant+GREEN])*(p[pos_ypost+GREEN] - p[pos_yant+GREEN]) +
+            (p[pos_ypost+BLUE] - p[pos_yant+BLUE])*(p[pos_ypost+BLUE] - p[pos_yant+BLUE])
         );
         return score;
     }
@@ -261,16 +259,10 @@ class SeamCarver {
         this.width--;
 
         // now update energy matrix
-        // don't need to recalculate last row
-        for (var row = this.height - 2; row >= 0; row--) {
-            var deletedCol = vseam[row];
-
-            for (var i = -3; i < 4; i ++) {
-                var col = deletedCol + i;
-
-                if (this.pixelInRange(col, row)) {
-                    this.energy_matrix[col][row] = this.recalculate(col, row);
-                }
+        for (var row = this.height - 1; row >= 0; row--) {
+            for (var col = 0; col < this.width; col++) {
+                // TODO recalculate energy only when necessary: pixels adjacent (up, down and both sides) to the removed seam.
+                this.energy_matrix[col][row] = this.recalculate(col, row);
             }
         }
     }
