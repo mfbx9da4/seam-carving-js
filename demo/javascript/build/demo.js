@@ -390,6 +390,7 @@ window.image = new Image();
 window.canvas = document.querySelector('canvas.image');
 window.findSeam = function (ctx) {
 	var vseam = smc.findVerticalSeam();
+
 	// draw vertical seam
 	for (var y = 0; y < vseam.length; y ++) {
 		var x = vseam[y];

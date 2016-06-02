@@ -7,15 +7,13 @@ var source = require('vinyl-source-stream');
 gulp.task('browserify', function() {
     return browserify('./demo/javascript/src/demo.js')
         .bundle()
-        //Pass desired output filename to vinyl-source-stream
         .pipe(source('demo.js'))
-        // Start piping stream to tasks!
         .pipe(gulp.dest('./demo/javascript/build/'));
 });
 
 gulp.task('test', function() {
     return gulp.src('test.js', {read: false})
-        .pipe(mocha({reporter: 'spec', showStack: true}))
+        .pipe(mocha({reporter: 'spec'}))
         .on('error', gutil.log);
 });
 
