@@ -275,11 +275,11 @@ class SeamCarver {
                 var col = deletedCol + i;
 
                 if (this.pixelInRange(col, row)) {
-                    var oldEnergy = this.energy_matrix[col][row];
-                    var newEnergy = this.recalculate(col, row);
-                    this.energy_matrix[col][row] = newEnergy;
+                    var oldValue = this.energy_matrix[col][row];
+                    var newValue = this.recalculate(col, row);
+                    this.energy_matrix[col][row] = newValue;
 
-                    if (newEnergy < oldEnergy) {
+                    if (newValue.energy < oldValue.energy) {
                         // TODO: could enqueue the cols, in row order
                         // so that when we pop off the queue we ensure
                         // topological order
