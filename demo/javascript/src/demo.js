@@ -40,6 +40,8 @@ image.onload = function () {
 	// TODO: draw energy
 };
 
+image.setAttribute('crossOrigin', '');
+image.crossOrigin = "Anonymous";
 // image.src = 'images/3x4.png';
 // image.src = 'images/6x5.png';
 image.src = 'images/70x70.png';
