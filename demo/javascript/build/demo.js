@@ -1,3 +1,4 @@
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 
 const RED = 0;
@@ -315,3 +316,55 @@ class SeamCarver {
 }
 
 module.exports = SeamCarver;
+
+},{}],2:[function(require,module,exports){
+"use strict";
+
+var SeamCarver = require('../../../SeamCarver');
+window.image = new Image();
+window.canvas = document.querySelector('canvas.image');
+window.findSeam = function (ctx) {
+	var vseam = smc.findVerticalSeam();
+	// draw vertical seam
+	for (var y = 0; y < vseam.length; y ++) {
+		var x = vseam[y];
+		ctx.strokeStyle = "#32cd32";
+		ctx.lineWidth = 1;
+		ctx.strokeRect(x, y, 1, 1);
+	}
+	return vseam;
+};
+
+window.removeSeam = function (vseam) {
+	smc.removeVerticalSeam(vseam);
+	smc.reDrawImage();
+};
+
+image.onload = function () {
+	canvas.width = image.width;
+	canvas.height = image.height;
+	window.ctx = canvas.getContext("2d");
+	ctx.drawImage(image, 0, 0);
+	window.smc = new SeamCarver(canvas);
+
+	var iterate = function () {
+		var vseam = findSeam(ctx);
+		setTimeout(function () {
+			removeSeam(vseam)
+			iterate();
+		}, 0);
+	}
+	iterate();
+
+	// TODO: draw energy
+};
+
+// image.src = 'images/3x4.png';
+// image.src = 'images/6x5.png';
+image.src = 'images/70x70.png';
+image.src = 'images/chameleon.png';
+image.src = 'images/HJocean.png';
+
+
+
+},{"../../../SeamCarver":1}]},{},[2]);
