@@ -308,6 +308,7 @@ class SeamCarver {
             //  * The inital queue was compiled while iterating by row.
             //  * We are iterating by BFS, ie children are at the end of the
             //  queue.
+            // TODO: unit test to guarantee this
             var pixelIndex = queue.shift();
 
             // already explored this pixel
