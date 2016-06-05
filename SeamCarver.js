@@ -281,11 +281,6 @@ class SeamCarver {
                     var oldValue = this.energy_matrix[col][row];
                     var newValue = this.recalculate(col, row);
                     this.energy_matrix[col][row] = newValue;
-
-                    // TODO: could enqueue the cols, in row order
-                    // so that when we pop off the queue we ensure
-                    // topological order
-                    // enqueue affected pixel
                     queue.push(this.pixelToIndex(col, row));
                 }
             }

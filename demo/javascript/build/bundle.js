@@ -282,11 +282,6 @@ class SeamCarver {
                     var oldValue = this.energy_matrix[col][row];
                     var newValue = this.recalculate(col, row);
                     this.energy_matrix[col][row] = newValue;
-
-                    // TODO: could enqueue the cols, in row order
-                    // so that when we pop off the queue we ensure
-                    // topological order
-                    // enqueue affected pixel
                     queue.push(this.pixelToIndex(col, row));
                 }
             }
@@ -309,6 +304,7 @@ class SeamCarver {
             //  * The inital queue was compiled while iterating by row.
             //  * We are iterating by BFS, ie children are at the end of the
             //  queue.
+            // TODO: unit test to guarantee this
             var pixelIndex = queue.shift();
 
             // already explored this pixel
@@ -337,9 +333,7 @@ class SeamCarver {
                 // TODO: do I need to enqueue all children
                 // found better path from parent
                 // so enqueue three affected children from row above
-                // console.log(col, row);
                 for (var i = Math.max(col - 1, 0); i < Math.min(col + 1, lastCol); i ++) {
-                    // console.log(i, row);
                     queue.push(this.pixelToIndex(i, row - 1));
                 }
             }
