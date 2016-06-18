@@ -275,13 +275,14 @@ class SeamCarver {
             var deletedCol = vseam[row];
 
             // TODO: check this covers all cases (up, down, left, right)
-            for (var i = -2; i < 3; i ++) {
+            for (var i = -12; i < 13; i ++) {
                 var col = deletedCol + i;
 
                 if (this.pixelInRange(col, row)) {
                     var oldValue = this.energy_matrix[col][row];
                     var newValue = this.recalculate(col, row);
                     this.energy_matrix[col][row] = newValue;
+                    // enqueue pixel in range
                     queue.push(this.pixelToIndex(col, row));
                 }
             }
@@ -316,7 +317,7 @@ class SeamCarver {
             var row = this.indexToY(pixelIndex);
             var node = this.energy_matrix[col][row];
             var oldVminsum = node.vminsum;
-            node.vminsum = -1;
+            node.vminsum = Number.POSITIVE_INFINITY;
 
             // check three parents in row below
             for (var i = Math.max(col - 1, 0); i < Math.min(col + 1, lastCol); i ++) {
@@ -324,8 +325,9 @@ class SeamCarver {
                 var new_vminsum = parent.vminsum + node.energy;
 
                 // TODO: do I always need to update the vminsum for this node?
-                if (new_vminsum < node.vminsum || node.vminsum === -1) {
+                if (new_vminsum < node.vminsum) {
                     node.vminsum = new_vminsum;
+                    node.minx = i;
                 }
             }
 
@@ -460,6 +462,7 @@ image.src = 'images/70x70.png';
 image.src = 'images/chameleon.png';
 image.src = 'images/HJocean.png';
 image.src = 'images/IMG_4445.jpg';
+image.src = 'images/white_building_in_field_by_mslash67.jpg';
 
 
 

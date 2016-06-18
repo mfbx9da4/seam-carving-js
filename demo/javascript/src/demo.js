@@ -54,5 +54,6 @@ image.src = 'images/70x70.png';
 image.src = 'images/chameleon.png';
 image.src = 'images/HJocean.png';
 image.src = 'images/IMG_4445.jpg';
+image.src = 'images/white_building_in_field_by_mslash67.jpg';
 
 

@@ -281,6 +281,7 @@ class SeamCarver {
                     var oldValue = this.energy_matrix[col][row];
                     var newValue = this.recalculate(col, row);
                     this.energy_matrix[col][row] = newValue;
+                    // enqueue pixel in range
                     queue.push(this.pixelToIndex(col, row));
                 }
             }
@@ -315,7 +316,7 @@ class SeamCarver {
             var row = this.indexToY(pixelIndex);
             var node = this.energy_matrix[col][row];
             var oldVminsum = node.vminsum;
-            node.vminsum = -1;
+            node.vminsum = Number.POSITIVE_INFINITY;
 
             // check three parents in row below
             for (var i = Math.max(col - 1, 0); i < Math.min(col + 1, lastCol); i ++) {
@@ -323,8 +324,9 @@ class SeamCarver {
                 var new_vminsum = parent.vminsum + node.energy;
 
                 // TODO: do I always need to update the vminsum for this node?
-                if (new_vminsum < node.vminsum || node.vminsum === -1) {
+                if (new_vminsum < node.vminsum) {
                     node.vminsum = new_vminsum;
+                    node.minx = i;
                 }
             }
 
