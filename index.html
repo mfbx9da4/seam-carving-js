@@ -20,11 +20,29 @@
 
 		canvas.image {
 			background: #eaeaea;
-			/*width: 100%;*/
+			width: 100%;
+		}
+		header {
+			position: fixed;
+			z-index: 9;
+			top: 0;
+			left: 0;
+			width: 100%;
+			display: flex;
+			flex-direction: row;
+		}
+
+		header button {
+			flex: 1;
 		}
 	</style>
 </head>
 <body>
+	<header>
+			<button onclick="demo.reDraw('energy')">Energy</button>
+			<button onclick="demo.reDraw('vminsum')">Cumulative sum</button>
+			<button onclick="demo.reDraw()">RGB</button>
+	</header>
 	<div class="wrapper">
 		<canvas class="image"></canvas>
 	</div>

@@ -176,10 +176,12 @@ class SeamCarver {
      */
     createEnergyMatrix() {
         // This has to be reverse order (bottom to top)
+        this.maxVminsum = 0;
         for (var y = this.height - 1; y >= 0; y--) {
             // This can be in any order ...
             for (var x = 0; x < this.width; x++) {
                 var energy = this.recalculate(x,y);
+                this.maxVminsum = Math.max(energy.vminsum, this.maxVminsum);
                 this.energy_matrix[x][y] = energy;
             }
         }
@@ -257,11 +259,14 @@ class SeamCarver {
         this.picture = this.imageData.data;
         this.width--;
 
+        this.maxVminsum = 0;
+
         // now update energy matrix
         for (var row = this.height - 1; row >= 0; row--) {
             for (var col = 0; col < this.width; col++) {
                 // TODO recalculate energy only when necessary: pixels adjacent (up, down and both sides) to the removed seam.
                 var energy = this.recalculate(col, row);
+                this.maxVminsum = Math.max(energy.vminsum, this.maxVminsum);
                 this.energy_matrix[col][row] = energy;
             }
         }
@@ -272,35 +277,42 @@ class SeamCarver {
      *
      */
     reDrawImage(field) {
+        console.time('reDrawImage');
 
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.canvas.width = this.imageData.width;
         this.canvas.height = this.imageData.height;
 
-        if (field === 'energy') {
-            console.time('drawEnergy');
-
+        if (field === 'energy' || field === 'vminsum') {
             this.imageData = this.context.createImageData(this.width, this.height);
 
             for (var row = 0; row < this.height; row ++) {
                 for (var col = 0; col < this.width; col ++) {
                     var pos = this.pixelToIndex(col, row);
-                    var energy = this.energy_matrix[col][row];
-                    var normalizedEnergy = Math.min(255, (energy.energy / 50) * 255);
+                    var val = this.energy_matrix[col][row][field];
+
+                    if (field === 'energy') {
+                        var normalizedVal = Math.min(255, (val / 50) * 255);
+                    } else if (field === 'vminsum') {
+                        var normalizedVal = ((val - 1000) / (this.maxVminsum - 1000)) * 255
+                        normalizedVal = Math.min(255, normalizedVal);
+                    }
+                    // 1000: 0
+
 
                     for (var i = 0; i < 4; i ++) {
-                        this.imageData.data[pos + i] = normalizedEnergy;
+                        this.imageData.data[pos + i] = normalizedVal;
                     }
 
                 }
             }
 
-            console.timeEnd('drawEnergy');
 
         }
 
         this.context.putImageData(this.imageData, 0, 0);
 
+        console.timeEnd('reDrawImage');
     }
 
     /**
