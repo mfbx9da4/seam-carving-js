@@ -17,7 +17,7 @@ window.findSeam = function (ctx) {
 
 window.removeSeam = function (vseam) {
 	smc.removeVerticalSeam(vseam);
-	smc.reDrawImage();
+	smc.reDrawImage('energy');
 };
 
 image.onload = function () {
@@ -27,11 +27,17 @@ image.onload = function () {
 	ctx.drawImage(image, 0, 0);
 	window.smc = new SeamCarver(canvas);
 
+	var iteration = 0;
+
 	var iterate = function () {
 		var vseam = findSeam(ctx);
 		setTimeout(function () {
 			removeSeam(vseam)
-			iterate();
+			iteration++;
+			console.info(iteration);
+			if (iteration < 1000) {
+				iterate();
+			}
 		}, 0);
 	}
 	iterate();

@@ -8,7 +8,7 @@ gulp.task('browserify', function() {
     return browserify('./demo/javascript/src/demo.js')
         .bundle()
         //Pass desired output filename to vinyl-source-stream
-        .pipe(source('demo.js'))
+        .pipe(source('bundle.js'))
         // Start piping stream to tasks!
         .pipe(gulp.dest('./demo/javascript/build/'));
 });

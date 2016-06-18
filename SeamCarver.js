@@ -20,10 +20,8 @@ class SeamCarver {
         this.width = canvas.width;
         this.height = canvas.height;
         this.context = canvas.getContext("2d");
-        console.log('got context');
         this.imageData = this.context.getImageData(0, 0, this.width, this.height);
         this.picture = this.imageData.data;
-        console.log('got rgb of picture');
 
         // Simple implementation of energy matrix as array of arrays.
         // Because we need to remove items, when removing the seam,
@@ -33,11 +31,11 @@ class SeamCarver {
             this.energy_matrix[i] = new Array(this.height);
         }
 
-        console.log('init energy matrix');
+        console.time('createEnergyMatrix');
 
         this.createEnergyMatrix();
 
-        console.log('created energy matrix');
+        console.timeEnd('createEnergyMatrix');
     }
 
     /**
@@ -107,12 +105,12 @@ class SeamCarver {
         var p = this.picture; // Just to make it more readable ...
 
         var score = Math.sqrt(
-            (p[pos_xpost+RED] - p[pos_xant+RED])*(p[pos_xpost+RED] - p[pos_xant+RED]) +
+            (p[pos_xpost+RED]   - p[pos_xant+RED])  *(p[pos_xpost+RED]   - p[pos_xant+RED]) +
             (p[pos_xpost+GREEN] - p[pos_xant+GREEN])*(p[pos_xpost+GREEN] - p[pos_xant+GREEN]) +
-            (p[pos_xpost+BLUE] - p[pos_xant+BLUE])*(p[pos_xpost+BLUE] - p[pos_xant+BLUE]) +
-            (p[pos_ypost+RED] - p[pos_yant+RED])*(p[pos_ypost+RED] - p[pos_yant+RED]) +
+            (p[pos_xpost+BLUE]  - p[pos_xant+BLUE]) *(p[pos_xpost+BLUE]  - p[pos_xant+BLUE]) +
+            (p[pos_ypost+RED]   - p[pos_yant+RED])  *(p[pos_ypost+RED]   - p[pos_yant+RED]) +
             (p[pos_ypost+GREEN] - p[pos_yant+GREEN])*(p[pos_ypost+GREEN] - p[pos_yant+GREEN]) +
-            (p[pos_ypost+BLUE] - p[pos_yant+BLUE])*(p[pos_ypost+BLUE] - p[pos_yant+BLUE])
+            (p[pos_ypost+BLUE]  - p[pos_yant+BLUE]) *(p[pos_ypost+BLUE]  - p[pos_yant+BLUE])
         );
         return score;
     }
@@ -177,13 +175,18 @@ class SeamCarver {
      *
      */
     createEnergyMatrix() {
+        this.maxEnergy = 0;
         // This has to be reverse order (bottom to top)
+        console.log('this.maxEnergy', this.maxEnergy);
         for (var y = this.height - 1; y >= 0; y--) {
             // This can be in any order ...
             for (var x = 0; x < this.width; x++) {
-                this.energy_matrix[x][y] = this.recalculate(x,y);
+                var energy = this.recalculate(x,y);
+                this.maxEnergy = Math.max(energy.energy, this.maxEnergy);
+                this.energy_matrix[x][y] = energy;
             }
         }
+        console.log('this.maxEnergy', this.maxEnergy);
     }
 
     /**
@@ -258,20 +261,53 @@ class SeamCarver {
         this.picture = this.imageData.data;
         this.width--;
 
+        this.maxEnergy = 0;
         // now update energy matrix
         for (var row = this.height - 1; row >= 0; row--) {
             for (var col = 0; col < this.width; col++) {
                 // TODO recalculate energy only when necessary: pixels adjacent (up, down and both sides) to the removed seam.
-                this.energy_matrix[col][row] = this.recalculate(col, row);
+                var energy = this.recalculate(col, row);
+                this.maxEnergy = Math.max(energy.energy, this.maxEnergy);
+                this.energy_matrix[col][row] = energy;
             }
         }
+        console.log('this.maxEnergy', this.maxEnergy);
     }
 
-    reDrawImage() {
+    /**
+     * Takes field as arg to print matrix, default is rgb, accepts energy.
+     *
+     */
+    reDrawImage(field) {
+
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.canvas.width = this.imageData.width;
         this.canvas.height = this.imageData.height;
+
+        if (field === 'energy') {
+            console.time('drawEnergy');
+
+            this.imageData = this.context.createImageData(this.width, this.height);
+
+            for (var row = 0; row < this.height; row ++) {
+                for (var col = 0; col < this.width; col ++) {
+                    var pos = this.pixelToIndex(col, row);
+                    var energy = this.energy_matrix[col][row];
+                    var normalizedEnergy = (energy.energy / this.maxEnergy) * 255;
+
+                    for (var i = 0; i < 4; i ++) {
+                        this.imageData.data[pos + i] = normalizedEnergy;
+                    }
+
+                }
+            }
+
+            console.timeEnd('drawEnergy');
+
+        }
+
         this.context.putImageData(this.imageData, 0, 0);
+
     }
 
     /**
