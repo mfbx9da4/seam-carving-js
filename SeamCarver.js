@@ -175,18 +175,14 @@ class SeamCarver {
      *
      */
     createEnergyMatrix() {
-        this.maxEnergy = 0;
         // This has to be reverse order (bottom to top)
-        console.log('this.maxEnergy', this.maxEnergy);
         for (var y = this.height - 1; y >= 0; y--) {
             // This can be in any order ...
             for (var x = 0; x < this.width; x++) {
                 var energy = this.recalculate(x,y);
-                this.maxEnergy = Math.max(energy.energy, this.maxEnergy);
                 this.energy_matrix[x][y] = energy;
             }
         }
-        console.log('this.maxEnergy', this.maxEnergy);
     }
 
     /**
@@ -261,17 +257,14 @@ class SeamCarver {
         this.picture = this.imageData.data;
         this.width--;
 
-        this.maxEnergy = 0;
         // now update energy matrix
         for (var row = this.height - 1; row >= 0; row--) {
             for (var col = 0; col < this.width; col++) {
                 // TODO recalculate energy only when necessary: pixels adjacent (up, down and both sides) to the removed seam.
                 var energy = this.recalculate(col, row);
-                this.maxEnergy = Math.max(energy.energy, this.maxEnergy);
                 this.energy_matrix[col][row] = energy;
             }
         }
-        console.log('this.maxEnergy', this.maxEnergy);
     }
 
     /**
@@ -293,7 +286,7 @@ class SeamCarver {
                 for (var col = 0; col < this.width; col ++) {
                     var pos = this.pixelToIndex(col, row);
                     var energy = this.energy_matrix[col][row];
-                    var normalizedEnergy = (energy.energy / this.maxEnergy) * 255;
+                    var normalizedEnergy = Math.min(255, (energy.energy / 50) * 255);
 
                     for (var i = 0; i < 4; i ++) {
                         this.imageData.data[pos + i] = normalizedEnergy;
