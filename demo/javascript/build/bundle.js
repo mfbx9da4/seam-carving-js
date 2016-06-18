@@ -275,7 +275,7 @@ class SeamCarver {
             var deletedCol = vseam[row];
 
             // TODO: check this covers all cases (up, down, left, right)
-            for (var i = -12; i < 13; i ++) {
+            for (var i = -2; i < 3; i ++) {
                 var col = deletedCol + i;
 
                 if (this.pixelInRange(col, row)) {
