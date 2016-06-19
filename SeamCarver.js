@@ -31,11 +31,11 @@ class SeamCarver {
             this.energy_matrix[i] = new Array(this.height);
         }
 
-        console.log('calculating energy matrix values ...');
+        console.time('createEnergyMatrix');
 
         this.createEnergyMatrix();
 
-        console.log('done');
+        console.timeEnd('createEnergyMatrix');
     }
 
     /**
@@ -105,12 +105,12 @@ class SeamCarver {
         var p = this.picture; // Just to make it more readable ...
 
         var score = Math.sqrt(
-            (p[pos_xpost+RED] - p[pos_xant+RED])*(p[pos_xpost+RED] - p[pos_xant+RED]) +
+            (p[pos_xpost+RED]   - p[pos_xant+RED])  *(p[pos_xpost+RED]   - p[pos_xant+RED]) +
             (p[pos_xpost+GREEN] - p[pos_xant+GREEN])*(p[pos_xpost+GREEN] - p[pos_xant+GREEN]) +
-            (p[pos_xpost+BLUE] - p[pos_xant+BLUE])*(p[pos_xpost+BLUE] - p[pos_xant+BLUE]) +
-            (p[pos_ypost+RED] - p[pos_yant+RED])*(p[pos_ypost+RED] - p[pos_yant+RED]) +
+            (p[pos_xpost+BLUE]  - p[pos_xant+BLUE]) *(p[pos_xpost+BLUE]  - p[pos_xant+BLUE]) +
+            (p[pos_ypost+RED]   - p[pos_yant+RED])  *(p[pos_ypost+RED]   - p[pos_yant+RED]) +
             (p[pos_ypost+GREEN] - p[pos_yant+GREEN])*(p[pos_ypost+GREEN] - p[pos_yant+GREEN]) +
-            (p[pos_ypost+BLUE] - p[pos_yant+BLUE])*(p[pos_ypost+BLUE] - p[pos_yant+BLUE])
+            (p[pos_ypost+BLUE]  - p[pos_yant+BLUE]) *(p[pos_ypost+BLUE]  - p[pos_yant+BLUE])
         );
         return score;
     }
@@ -176,10 +176,13 @@ class SeamCarver {
      */
     createEnergyMatrix() {
         // This has to be reverse order (bottom to top)
+        this.maxVminsum = 0;
         for (var y = this.height - 1; y >= 0; y--) {
             // This can be in any order ...
             for (var x = 0; x < this.width; x++) {
-                this.energy_matrix[x][y] = this.recalculate(x,y);
+                var energy = this.recalculate(x,y);
+                this.maxVminsum = Math.max(energy.vminsum, this.maxVminsum);
+                this.energy_matrix[x][y] = energy;
             }
         }
     }
@@ -353,12 +356,48 @@ class SeamCarver {
         this.recalculateVminsumForAffectedPixels(affectedPixels);
     }
 
-    reDrawImage() {
+    /*
+     * Takes field as arg to print matrix, default is rgb, accepts energy.
+     *
+     */
+    reDrawImage(field) {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.canvas.width = this.imageData.width;
         this.canvas.height = this.imageData.height;
-        this.canvas.style.width = this.imageData.width + 'px';
-        this.canvas.style.height = this.imageData.height + 'px';
+
+        if (field === 'energy' || field === 'vminsum' || (field !== this.imageData.dataField)) {
+            this.imageData = this.context.createImageData(this.width, this.height);
+            this.imageData.dataField = field;
+
+            for (var row = 0; row < this.height; row ++) {
+                for (var col = 0; col < this.width; col ++) {
+                    var pos = this.pixelToIndex(col, row);
+                    var val = this.energy_matrix[col][row][field];
+
+                    if (field === 'energy') {
+                        var normalizedVal = Math.min(255, ((val / 255) * 255));
+                    } else if (field === 'vminsum') {
+                        var normalizedVal = ((val - 1000) / (this.maxVminsum - 1000)) * 255
+                    } else {
+                        // rgb
+                        for (var i = 0; i < 4; i ++) {
+                            this.imageData.data[pos + i] = this.picture[pos + i];
+                        }
+                        continue;
+                    }
+
+                    for (var i = 0; i < 3; i ++) {
+                        this.imageData.data[pos + i] = normalizedVal;
+                    }
+                    // make opaque
+                    this.imageData.data[pos + 3] = 255;
+
+                }
+            }
+
+
+        }
+
         this.context.putImageData(this.imageData, 0, 0);
     }
 
