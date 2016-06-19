@@ -277,7 +277,6 @@ class SeamCarver {
             for (var col = 0; col < this.width; col++) {
                 // TODO recalculate energy only when necessary: pixels adjacent (up, down and both sides) to the removed seam.
                 var energy = this.recalculate(col, row);
-                this.energy_matrix[col][row] = energy;
                 this.energyMatrix[col][row] = energy.energy;
                 this.minsumMatrix[col][row] = energy.vminsum;
                 this.minxMatrix[col][row] = energy.minx;
