@@ -303,8 +303,6 @@ class SeamCarver {
                         continue;
                     }
 
-
-
                     for (var i = 0; i < 3; i ++) {
                         this.imageData.data[pos + i] = normalizedVal;
                     }
