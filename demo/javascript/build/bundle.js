@@ -27,9 +27,13 @@ class SeamCarver {
         // Simple implementation of energy matrix as array of arrays.
         // Because we need to remove items, when removing the seam,
         // maybe some sort of linked structure is more efficient.
-        this.energy_matrix = new Array(this.width);
+        this.energyMatrix = new Array(this.width);
+        this.minsumMatrix = new Array(this.width);
+        this.minxMatrix = new Array(this.width);
         for (var i = 0; i < this.width; i++) {
-            this.energy_matrix[i] = new Array(this.height);
+            this.energyMatrix[i] = new Float32Array(this.height);
+            this.minsumMatrix[i] = new Float32Array(this.height);
+            this.minxMatrix[i] = new Uint16Array(this.height);
         }
 
         console.time('createEnergyMatrix');
@@ -136,13 +140,13 @@ class SeamCarver {
 
             // below left
             if (x - 1 >= 0) {
-                energy_cell.vminsum = this.energy_matrix[x - 1][y + 1].vminsum + energy_cell.energy;
+                energy_cell.vminsum = this.minsumMatrix[x - 1][y + 1] + energy_cell.energy;
                 energy_cell.minx = x - 1;
             }
 
             // below
             if (x < this.width) {
-                cursum = this.energy_matrix[x][y + 1].vminsum + energy_cell.energy;
+                cursum = this.minsumMatrix[x][y + 1] + energy_cell.energy;
                 if (cursum < energy_cell.vminsum) {
                     energy_cell.vminsum = cursum;
                     energy_cell.minx = x;
@@ -151,7 +155,7 @@ class SeamCarver {
 
             // below right
             if (x + 1 < this.width) {
-                cursum = this.energy_matrix[x + 1][y + 1].vminsum + energy_cell.energy;
+                cursum = this.minsumMatrix[x + 1][y + 1] + energy_cell.energy;
                 if (cursum < energy_cell.vminsum) {
                     energy_cell.vminsum = cursum;
                     energy_cell.minx = x + 1;
@@ -183,7 +187,9 @@ class SeamCarver {
             for (var x = 0; x < this.width; x++) {
                 var energy = this.recalculate(x,y);
                 this.maxVminsum = Math.max(energy.vminsum, this.maxVminsum);
-                this.energy_matrix[x][y] = energy;
+                this.energyMatrix[x][y] = energy.energy;
+                this.minsumMatrix[x][y] = energy.vminsum;
+                this.minxMatrix[x][y] = energy.minx;
             }
         }
     }
@@ -200,8 +206,8 @@ class SeamCarver {
 
         // Find smallest sum on first row
         for (var x = 0; x < this.width; x++) {
-            if (this.energy_matrix[x][0].vminsum < vminsum) {
-                vminsum = this.energy_matrix[x][0].vminsum;
+            if (this.minsumMatrix[x][0] < vminsum) {
+                vminsum = this.minsumMatrix[x][0];
                 xminsum = x;
             }
         }
@@ -211,7 +217,7 @@ class SeamCarver {
         // Follow down to get array
         var y = 0;
         while (y < this.height - 1) {
-            xminsum = this.energy_matrix[xminsum][y].minx
+            xminsum = this.minxMatrix[xminsum][y]
             y++;
             vseam[y] = xminsum;
         }
@@ -250,13 +256,20 @@ class SeamCarver {
                 }
 
                 // copy across energy_matrix
-                var val_right = this.energy_matrix[col + 1][row];
-                val_right.minx--;
-                this.energy_matrix[col][row] = val_right;
+                var energy_right = this.energyMatrix[col + 1][row];
+                var minx_right = this.minxMatrix[col + 1][row];
+                var minsum_right = this.minsumMatrix[col + 1][row];
+                minx_right--;
+                this.energyMatrix[col + 1][row] = energy_right;
+                this.minxMatrix[col + 1][row] = minx_right;
+                this.minsumMatrix[col + 1][row] = minsum_right;
             }
         }
 
-        this.energy_matrix.splice(this.width - 1, 1)
+        // chop off last column
+        this.energyMatrix.splice(this.width - 1, 1);
+        this.minxMatrix.splice(this.width - 1, 1);
+        this.minsumMatrix.splice(this.width - 1, 1);
         this.picture = this.imageData.data;
         this.width--;
 
@@ -266,6 +279,9 @@ class SeamCarver {
                 // TODO recalculate energy only when necessary: pixels adjacent (up, down and both sides) to the removed seam.
                 var energy = this.recalculate(col, row);
                 this.energy_matrix[col][row] = energy;
+                this.energyMatrix[col][row] = energy.energy;
+                this.minsumMatrix[col][row] = energy.vminsum;
+                this.minxMatrix[col][row] = energy.minx;
             }
         }
     }
@@ -286,12 +302,23 @@ class SeamCarver {
             for (var row = 0; row < this.height; row ++) {
                 for (var col = 0; col < this.width; col ++) {
                     var pos = this.pixelToIndex(col, row);
-                    var val = this.energy_matrix[col][row][field];
 
                     if (field === 'energy') {
+                        var val = this.energyMatrix[col][row];
                         var normalizedVal = Math.min(255, ((val / 255) * 255));
-                    } else if (field === 'vminsum') {
+                    } else if (field === 'minsum') {
+                        var val = this.minsumMatrix[col][row];
                         var normalizedVal = ((val - 1000) / (this.maxVminsum - 1000)) * 255
+                    } else if (field === 'minx') {
+                        var val = this.minxMatrix[col][row];
+                        var direction = col - val + 1;
+                        if (direction < 0 || direction > 2) direction = 0;
+                        for (var i = 0; i < 3; i ++) {
+                            this.imageData.data[pos + i] = 0;
+                        }
+                        this.imageData.data[pos + direction] = 255;
+                        this.imageData.data[pos + 3] = 255;
+                        continue;
                     } else {
                         // rgb
                         for (var i = 0; i < 4; i ++) {
@@ -341,12 +368,22 @@ class SeamCarver {
         } else {
             for (var y = 0; y < this.height; y++) {
                 for (var x = 0; x < this.width; x++) {
-                    var val = this.energy_matrix[x][y];
-                    if (val && field in val) {
-                        lines += val[field].toFixed(2) + "\t";
+                    var val;
+
+                    if (field === 'energy') {
+                        val = this.energyMatrix[x][y];
+                    } else if (field === 'minsum') {
+                        val = this.minsumMatrix[x][y];
+                    } else if (field === 'minx') {
+                        val = this.minxMatrix[x][y];
+                    }
+
+                    if (val) {
+                        lines += val.toFixed(2) + "\t";
                     } else {
                         lines += '-----\t';
                     }
+
                 }
                 lines += '\n';
             }
@@ -438,11 +475,15 @@ key('e', function () {
 });
 
 key('s', function () {
-	demo.reDraw('vminsum');
+	demo.reDraw('minsum');
 });
 
 key('c', function () {
 	demo.reDraw('rgb');
+});
+
+key('x', function () {
+	demo.reDraw('minx');
 });
 
 key('r', function () {
@@ -467,8 +508,8 @@ demo.reset = function () {
 	// demo.image.src = 'images/6x5.png';
 	// demo.image.src = 'images/70x70.png';
 	// demo.image.src = 'images/200x100.png';
-	demo.image.src = 'images/chameleon.png';
-	// demo.image.src = 'images/HJocean.png';
+	// demo.image.src = 'images/chameleon.png';
+	demo.image.src = 'images/HJocean.png';
 };
 
 demo.reset();

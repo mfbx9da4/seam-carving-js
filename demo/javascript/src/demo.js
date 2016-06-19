@@ -78,11 +78,15 @@ key('e', function () {
 });
 
 key('s', function () {
-	demo.reDraw('vminsum');
+	demo.reDraw('minsum');
 });
 
 key('c', function () {
 	demo.reDraw('rgb');
+});
+
+key('x', function () {
+	demo.reDraw('minx');
 });
 
 key('r', function () {
@@ -107,8 +111,8 @@ demo.reset = function () {
 	// demo.image.src = 'images/6x5.png';
 	// demo.image.src = 'images/70x70.png';
 	// demo.image.src = 'images/200x100.png';
-	demo.image.src = 'images/chameleon.png';
-	// demo.image.src = 'images/HJocean.png';
+	// demo.image.src = 'images/chameleon.png';
+	demo.image.src = 'images/HJocean.png';
 };
 
 demo.reset();
