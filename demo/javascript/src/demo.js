@@ -104,8 +104,9 @@ demo.reDraw = function (field) {
 
 demo.reset = function () {
 	// demo.image.src = 'images/3x4.png';
-	demo.image.src = 'images/6x5.png';
+	// demo.image.src = 'images/6x5.png';
 	// demo.image.src = 'images/70x70.png';
+	demo.image.src = 'images/200x100.png';
 	// demo.image.src = 'images/chameleon.png';
 	// demo.image.src = 'images/HJocean.png';
 };
