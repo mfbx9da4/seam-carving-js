@@ -31,8 +31,8 @@ class SeamCarver {
         this.minsumMatrix = new Array(this.width);
         this.minxMatrix = new Array(this.width);
         for (var i = 0; i < this.width; i++) {
-            this.energyMatrix[i] = new Uint16Array(this.height);
-            this.minsumMatrix[i] = new Uint16Array(this.height);
+            this.energyMatrix[i] = new Float32Array(this.height);
+            this.minsumMatrix[i] = new Float32Array(this.height);
             this.minxMatrix[i] = new Uint16Array(this.height);
         }
 
@@ -309,8 +309,15 @@ class SeamCarver {
                         var val = this.minsumMatrix[col][row];
                         var normalizedVal = ((val - 1000) / (this.maxVminsum - 1000)) * 255
                     } else if (field === 'minx') {
-                        var val = this.minsumMatrix[col][row];
-                        var normalizedVal = ((val - 1000) / (this.maxVminsum - 1000)) * 255
+                        var val = this.minxMatrix[col][row];
+                        var direction = col - val + 1;
+                        if (direction < 0 || direction > 2) direction = 0;
+                        for (var i = 0; i < 3; i ++) {
+                            this.imageData.data[pos + i] = 0;
+                        }
+                        this.imageData.data[pos + direction] = 255;
+                        this.imageData.data[pos + 3] = 255;
+                        continue;
                     } else {
                         // rgb
                         for (var i = 0; i < 4; i ++) {
@@ -472,6 +479,10 @@ key('s', function () {
 
 key('c', function () {
 	demo.reDraw('rgb');
+});
+
+key('x', function () {
+	demo.reDraw('minx');
 });
 
 key('r', function () {

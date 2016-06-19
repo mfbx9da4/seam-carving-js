@@ -85,6 +85,10 @@ key('c', function () {
 	demo.reDraw('rgb');
 });
 
+key('x', function () {
+	demo.reDraw('minx');
+});
+
 key('r', function () {
 	demo.removeSeam();
 });
