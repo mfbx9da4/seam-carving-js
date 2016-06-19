@@ -260,14 +260,11 @@ class SeamCarver {
         this.picture = this.imageData.data;
         this.width--;
 
-        this.maxVminsum = 0;
-
         // now update energy matrix
         for (var row = this.height - 1; row >= 0; row--) {
             for (var col = 0; col < this.width; col++) {
                 // TODO recalculate energy only when necessary: pixels adjacent (up, down and both sides) to the removed seam.
                 var energy = this.recalculate(col, row);
-                this.maxVminsum = Math.max(energy.vminsum, this.maxVminsum);
                 this.energy_matrix[col][row] = energy;
             }
         }
@@ -469,8 +466,8 @@ demo.reset = function () {
 	// demo.image.src = 'images/3x4.png';
 	// demo.image.src = 'images/6x5.png';
 	// demo.image.src = 'images/70x70.png';
-	demo.image.src = 'images/200x100.png';
-	// demo.image.src = 'images/chameleon.png';
+	// demo.image.src = 'images/200x100.png';
+	demo.image.src = 'images/chameleon.png';
 	// demo.image.src = 'images/HJocean.png';
 };
 

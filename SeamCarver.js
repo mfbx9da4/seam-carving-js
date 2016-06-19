@@ -259,14 +259,11 @@ class SeamCarver {
         this.picture = this.imageData.data;
         this.width--;
 
-        this.maxVminsum = 0;
-
         // now update energy matrix
         for (var row = this.height - 1; row >= 0; row--) {
             for (var col = 0; col < this.width; col++) {
                 // TODO recalculate energy only when necessary: pixels adjacent (up, down and both sides) to the removed seam.
                 var energy = this.recalculate(col, row);
-                this.maxVminsum = Math.max(energy.vminsum, this.maxVminsum);
                 this.energy_matrix[col][row] = energy;
             }
         }
