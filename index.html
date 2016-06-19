@@ -20,7 +20,11 @@
 
 		canvas.image {
 			background: #eaeaea;
-			width: 100%;
+			max-width: 100%;
+			max-height: 100%;
+			image-rendering: pixelated;
+			height: 100%;
+			border: 1px solid #eaeaea;
 		}
 		header {
 			position: fixed;
@@ -39,9 +43,13 @@
 </head>
 <body>
 	<header>
-			<button onclick="demo.reDraw('energy')">Energy</button>
-			<button onclick="demo.reDraw('vminsum')">Cumulative sum</button>
-			<button onclick="demo.reDraw()">RGB</button>
+			<button onclick="demo.togglePixelation()">Toggle pixelation (P)</button>
+			<button onclick="demo.reDraw('energy')">Energy (E)</button>
+			<button onclick="demo.reDraw('vminsum')">Cumulative sum (S)</button>
+			<button onclick="demo.reDraw()">Color (C)</button>
+			<button onclick="demo.findSeam()">Find Seam (F)</button>
+			<button onclick="demo.removeSeam()">Remove Seam (R)</button>
+			<button onclick="demo.reset()">Reset (ESC)</button>
 	</header>
 	<div class="wrapper">
 		<canvas class="image"></canvas>

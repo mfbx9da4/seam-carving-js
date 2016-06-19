@@ -277,14 +277,13 @@ class SeamCarver {
      *
      */
     reDrawImage(field) {
-        console.time('reDrawImage');
-
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.canvas.width = this.imageData.width;
         this.canvas.height = this.imageData.height;
 
-        if (field === 'energy' || field === 'vminsum') {
+        if (field === 'energy' || field === 'vminsum' || (field !== this.imageData.dataField)) {
             this.imageData = this.context.createImageData(this.width, this.height);
+            this.imageData.dataField = field;
 
             for (var row = 0; row < this.height; row ++) {
                 for (var col = 0; col < this.width; col ++) {
@@ -292,17 +291,24 @@ class SeamCarver {
                     var val = this.energy_matrix[col][row][field];
 
                     if (field === 'energy') {
-                        var normalizedVal = Math.min(255, (val / 50) * 255);
+                        var normalizedVal = Math.min(255, ((val / 255) * 255));
                     } else if (field === 'vminsum') {
                         var normalizedVal = ((val - 1000) / (this.maxVminsum - 1000)) * 255
-                        normalizedVal = Math.min(255, normalizedVal);
+                    } else {
+                        // rgb
+                        for (var i = 0; i < 4; i ++) {
+                            this.imageData.data[pos + i] = this.picture[pos + i];
+                        }
+                        continue;
                     }
-                    // 1000: 0
 
 
-                    for (var i = 0; i < 4; i ++) {
+
+                    for (var i = 0; i < 3; i ++) {
                         this.imageData.data[pos + i] = normalizedVal;
                     }
+                    // make opaque
+                    this.imageData.data[pos + 3] = 255;
 
                 }
             }
@@ -311,8 +317,6 @@ class SeamCarver {
         }
 
         this.context.putImageData(this.imageData, 0, 0);
-
-        console.timeEnd('reDrawImage');
     }
 
     /**
