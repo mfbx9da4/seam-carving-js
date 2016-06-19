@@ -552,16 +552,14 @@ demo.reDraw = function (field) {
 demo.reset = function () {
 	demo.image.setAttribute('crossOrigin', '');
 	demo.image.crossOrigin = 'Anonymous';
-	// image.src = 'images/3x4.png';
-	// image.src = 'images/6x5.png';
 	// demo.image.src = 'images/3x4.png';
 	// demo.image.src = 'images/6x5.png';
-	// demo.image.src = 'images/70x70.png';
+	demo.image.src = 'images/70x70.png';
 	// demo.image.src = 'images/200x100.png';
-	demo.image.src = 'images/chameleon.png';
+	// demo.image.src = 'images/chameleon.png';
 	// demo.image.src = 'images/HJocean.png';
-	// image.src = 'images/IMG_4445.jpg';
-	// image.src = 'images/white_building_in_field_by_mslash67.jpg';
+	// demo.image.src = 'images/IMG_4445.jpg';
+	// demo.image.src = 'images/white_building_in_field_by_mslash67.jpg';
 };
 
 demo.reset();
