@@ -132,7 +132,7 @@ class SeamCarver {
         // last row
         if (y >= this.height-1) {
             energy_cell.vminsum = energy_cell.energy;
-            energy_cell.minx = 0;
+            energy_cell.minx = x;
         } else {
             var cursum = 0;
             var curminx = 0;
@@ -310,11 +310,10 @@ class SeamCarver {
                     } else if (field === 'minx') {
                         var val = this.minxMatrix[col][row];
                         var direction = col - val + 1;
-                        if (direction < 0 || direction > 2) direction = 0;
                         for (var i = 0; i < 3; i ++) {
                             this.imageData.data[pos + i] = 0;
                         }
-                        this.imageData.data[pos + direction] = 255;
+                        if (direction >= 0 && direction <= 2) this.imageData.data[pos + direction] = 255;
                         this.imageData.data[pos + 3] = 255;
                         continue;
                     } else {

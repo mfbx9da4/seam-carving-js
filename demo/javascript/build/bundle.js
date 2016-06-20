@@ -133,7 +133,7 @@ class SeamCarver {
         // last row
         if (y >= this.height-1) {
             energy_cell.vminsum = energy_cell.energy;
-            energy_cell.minx = 0;
+            energy_cell.minx = x;
         } else {
             var cursum = 0;
             var curminx = 0;
@@ -311,11 +311,10 @@ class SeamCarver {
                     } else if (field === 'minx') {
                         var val = this.minxMatrix[col][row];
                         var direction = col - val + 1;
-                        if (direction < 0 || direction > 2) direction = 0;
                         for (var i = 0; i < 3; i ++) {
                             this.imageData.data[pos + i] = 0;
                         }
-                        this.imageData.data[pos + direction] = 255;
+                        if (direction >= 0 && direction <= 2) this.imageData.data[pos + direction] = 255;
                         this.imageData.data[pos + 3] = 255;
                         continue;
                     } else {
@@ -503,12 +502,15 @@ demo.reDraw = function (field) {
 };
 
 demo.reset = function () {
+	demo.image.setAttribute('crossOrigin', '');
+	demo.image.crossOrigin = 'Anonymous';
 	// demo.image.src = 'images/3x4.png';
 	// demo.image.src = 'images/6x5.png';
-	demo.image.src = 'images/70x70.png';
+	// demo.image.src = 'images/70x70.png';
 	// demo.image.src = 'images/200x100.png';
 	// demo.image.src = 'images/chameleon.png';
 	// demo.image.src = 'images/HJocean.png';
+	demo.image.src = 'https://cdn.hyperdev.com/us-east-1%3A095124f7-7022-4119-9d6a-68fd1e3dd7ef%2Fchameleon.png';
 };
 
 demo.reset();

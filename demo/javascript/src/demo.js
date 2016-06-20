@@ -107,12 +107,15 @@ demo.reDraw = function (field) {
 };
 
 demo.reset = function () {
+	demo.image.setAttribute('crossOrigin', '');
+	demo.image.crossOrigin = 'Anonymous';
 	// demo.image.src = 'images/3x4.png';
 	// demo.image.src = 'images/6x5.png';
-	demo.image.src = 'images/70x70.png';
+	// demo.image.src = 'images/70x70.png';
 	// demo.image.src = 'images/200x100.png';
 	// demo.image.src = 'images/chameleon.png';
 	// demo.image.src = 'images/HJocean.png';
+	demo.image.src = 'https://cdn.hyperdev.com/us-east-1%3A095124f7-7022-4119-9d6a-68fd1e3dd7ef%2Fchameleon.png';
 };
 
 demo.reset();
