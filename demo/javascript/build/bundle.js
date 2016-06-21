@@ -294,6 +294,9 @@ class SeamCarver {
         this.canvas.width = this.imageData.width;
         this.canvas.height = this.imageData.height;
 
+        this.canvas.style.width = this.imageData.width + 'px';
+        this.canvas.style.height = this.imageData.height + 'px';
+
         if (field === 'energy' || field === 'vminsum' || (field !== this.imageData.dataField)) {
             this.imageData = this.context.createImageData(this.width, this.height);
             this.imageData.dataField = field;
@@ -403,7 +406,7 @@ var demo = window.demo;
 demo.config = {
 	drawField: 'rgb',
 	seamColor: "#32cd32",
-	autoIterations: 0,
+	autoIterate: false,
 	iterationState: 0
 };
 demo.image = new Image();
@@ -434,7 +437,7 @@ demo.iterate = function () {
 	setTimeout(function () {
 		demo.removeSeam()
 		demo.iteration++;
-		if (demo.iteration < demo.config.autoIterations) {
+		if (demo.config.autoIterate) {
 			demo.iterate();
 		}
 	}, 0);
@@ -461,6 +464,7 @@ demo.togglePixelation = function () {
 }
 
 key('i', function () {
+	demo.config.autoIterate = !demo.config.autoIterate;
 	demo.iterate();
 });
 
@@ -510,7 +514,11 @@ demo.reset = function () {
 	// demo.image.src = 'images/200x100.png';
 	// demo.image.src = 'images/chameleon.png';
 	// demo.image.src = 'images/HJocean.png';
-	demo.image.src = 'https://cdn.hyperdev.com/us-east-1%3A095124f7-7022-4119-9d6a-68fd1e3dd7ef%2Fchameleon.png';
+	// demo.image.src = 'images/butterfly.png';
+	// demo.image.src = 'images/1000x300.jpg';
+	demo.image.src = 'images/1000x500.jpg';
+	// demo.image.src = 'images/1600x1200.jpg';
+	// demo.image.src = 'https://cdn.hyperdev.com/us-east-1%3A095124f7-7022-4119-9d6a-68fd1e3dd7ef%2Fchameleon.png';
 };
 
 demo.reset();

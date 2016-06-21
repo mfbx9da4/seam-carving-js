@@ -56,8 +56,8 @@ describe('SeamCarver', function() {
             assert.equal(sm.energyMatrix[0][3], 1000);
             assert.equal(sm.minsumMatrix[0][3], 1000);
             assert.equal(sm.minxMatrix[0][3], 0);
-            assert.equal(sm.energyMatrix[1][2], Math.sqrt(52024));
-            assert.equal(sm.minsumMatrix[1][2], 1000 + Math.sqrt(52024));
+            assert.equal(parseInt(sm.energyMatrix[1][2]), parseInt(Math.sqrt(52024)));
+            assert.equal(parseInt(sm.minsumMatrix[1][2]), parseInt(1000 + Math.sqrt(52024)));
             assert.equal(sm.minxMatrix[1][2], 0);
             done();
         });

@@ -293,6 +293,9 @@ class SeamCarver {
         this.canvas.width = this.imageData.width;
         this.canvas.height = this.imageData.height;
 
+        this.canvas.style.width = this.imageData.width + 'px';
+        this.canvas.style.height = this.imageData.height + 'px';
+
         if (field === 'energy' || field === 'vminsum' || (field !== this.imageData.dataField)) {
             this.imageData = this.context.createImageData(this.width, this.height);
             this.imageData.dataField = field;
