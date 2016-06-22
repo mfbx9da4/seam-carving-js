@@ -260,9 +260,9 @@ class SeamCarver {
                 var minx_right = this.minxMatrix[col + 1][row];
                 var minsum_right = this.minsumMatrix[col + 1][row];
                 minx_right--;
-                this.energyMatrix[col + 1][row] = energy_right;
-                this.minxMatrix[col + 1][row] = minx_right;
-                this.minsumMatrix[col + 1][row] = minsum_right;
+                this.energyMatrix[col][row] = energy_right;
+                this.minxMatrix[col][row] = minx_right;
+                this.minsumMatrix[col][row] = minsum_right;
             }
         }
 
@@ -297,7 +297,6 @@ class SeamCarver {
                 if (this.pixelInRange(col, row)) {
                     var newValue = this.recalculate(col, row);
                     this.energyMatrix[col][row] = newValue.energy;
-                    console.log('newValue.minx', newValue.minx);
                     this.minxMatrix[col][row] = newValue.minx;
                     this.minsumMatrix[col][row] = newValue.vminsum;
                     // enqueue pixel in range
@@ -345,8 +344,6 @@ class SeamCarver {
                 // TODO: do I always need to update the vminsum for this node?
                 if (newVminsum < this.minsumMatrix[col][row]) {
                     this.minsumMatrix[col][row] = newVminsum;
-                    // TODO: check i is correct and does not need to be -1, 0, 1
-                    // rather than actual col
                     this.minxMatrix[col][row] = i;
                 }
             }
@@ -417,7 +414,9 @@ class SeamCarver {
                         for (var i = 0; i < 3; i ++) {
                             this.imageData.data[pos + i] = 0;
                         }
-                        if (direction >= 0 && direction <= 2) this.imageData.data[pos + direction] = 255;
+                        if (direction >= 0 && direction <= 2) {
+                            this.imageData.data[pos + direction] = 255;
+                        }
                         this.imageData.data[pos + 3] = 255;
                         continue;
                     } else {
@@ -613,7 +612,7 @@ demo.reset = function () {
 	// demo.image.src = 'images/12x10.png';
 	demo.image.src = 'images/70x70.png';
 	// demo.image.src = 'images/200x100.png';
-	// demo.image.src = 'images/chameleon.png';
+	demo.image.src = 'images/chameleon.png';
 	// demo.image.src = 'images/HJocean.png';
 	// demo.image.src = 'images/IMG_4445.jpg';
 	// demo.image.src = 'images/white_building_in_field_by_mslash67.jpg';

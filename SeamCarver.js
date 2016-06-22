@@ -261,7 +261,6 @@ class SeamCarver {
                 minx_right--;
                 this.energyMatrix[col][row] = energy_right;
                 this.minxMatrix[col][row] = minx_right;
-                console.log('this.minxMatrix[col + 1][row]', this.minxMatrix[col][row]);
                 this.minsumMatrix[col][row] = minsum_right;
             }
         }
@@ -297,7 +296,6 @@ class SeamCarver {
                 if (this.pixelInRange(col, row)) {
                     var newValue = this.recalculate(col, row);
                     this.energyMatrix[col][row] = newValue.energy;
-                    console.log('newValue.minx', newValue.minx);
                     this.minxMatrix[col][row] = newValue.minx;
                     this.minsumMatrix[col][row] = newValue.vminsum;
                     // enqueue pixel in range
@@ -345,9 +343,6 @@ class SeamCarver {
                 // TODO: do I always need to update the vminsum for this node?
                 if (newVminsum < this.minsumMatrix[col][row]) {
                     this.minsumMatrix[col][row] = newVminsum;
-                    // TODO: check i is correct and does not need to be -1, 0, 1
-                    // rather than actual col
-                    console.log('this.minxMatrix[col][row] = i;', this.minxMatrix[col][row] = i;);
                     this.minxMatrix[col][row] = i;
                 }
             }
