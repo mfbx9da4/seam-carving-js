@@ -260,9 +260,9 @@ class SeamCarver {
                 var minx_right = this.minxMatrix[col + 1][row];
                 var minsum_right = this.minsumMatrix[col + 1][row];
                 minx_right--;
-                this.energyMatrix[col + 1][row] = energy_right;
-                this.minxMatrix[col + 1][row] = minx_right;
-                this.minsumMatrix[col + 1][row] = minsum_right;
+                this.energyMatrix[col][row] = energy_right;
+                this.minxMatrix[col][row] = minx_right;
+                this.minsumMatrix[col][row] = minsum_right;
             }
         }
 
