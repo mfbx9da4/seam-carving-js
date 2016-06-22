@@ -111,9 +111,9 @@ demo.reset = function () {
 	demo.image.setAttribute('crossOrigin', '');
 	demo.image.crossOrigin = 'Anonymous';
 	// demo.image.src = 'images/3x4.png';
-	demo.image.src = 'images/6x5.png';
+	// demo.image.src = 'images/6x5.png';
 	// demo.image.src = 'images/12x10.png';
-	// demo.image.src = 'images/70x70.png';
+	demo.image.src = 'images/70x70.png';
 	// demo.image.src = 'images/200x100.png';
 	// demo.image.src = 'images/chameleon.png';
 	// demo.image.src = 'images/HJocean.png';
@@ -121,7 +121,7 @@ demo.reset = function () {
 	// demo.image.src = 'images/white_building_in_field_by_mslash67.jpg';
 	// demo.image.src = 'images/butterfly.png';
 	// demo.image.src = 'images/1000x300.jpg';
-	demo.image.src = 'images/1000x500.jpg';
+	// demo.image.src = 'images/1000x500.jpg';
 	// demo.image.src = 'images/1600x1200.jpg';
 	// demo.image.src = 'https://cdn.hyperdev.com/us-east-1%3A095124f7-7022-4119-9d6a-68fd1e3dd7ef%2Fchameleon.png';
 };

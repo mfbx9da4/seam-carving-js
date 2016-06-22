@@ -259,9 +259,10 @@ class SeamCarver {
                 var minx_right = this.minxMatrix[col + 1][row];
                 var minsum_right = this.minsumMatrix[col + 1][row];
                 minx_right--;
-                this.energyMatrix[col + 1][row] = energy_right;
-                this.minxMatrix[col + 1][row] = minx_right;
-                this.minsumMatrix[col + 1][row] = minsum_right;
+                this.energyMatrix[col][row] = energy_right;
+                this.minxMatrix[col][row] = minx_right;
+                console.log('this.minxMatrix[col + 1][row]', this.minxMatrix[col][row]);
+                this.minsumMatrix[col][row] = minsum_right;
             }
         }
 
@@ -296,6 +297,7 @@ class SeamCarver {
                 if (this.pixelInRange(col, row)) {
                     var newValue = this.recalculate(col, row);
                     this.energyMatrix[col][row] = newValue.energy;
+                    console.log('newValue.minx', newValue.minx);
                     this.minxMatrix[col][row] = newValue.minx;
                     this.minsumMatrix[col][row] = newValue.vminsum;
                     // enqueue pixel in range
@@ -345,6 +347,7 @@ class SeamCarver {
                     this.minsumMatrix[col][row] = newVminsum;
                     // TODO: check i is correct and does not need to be -1, 0, 1
                     // rather than actual col
+                    console.log('this.minxMatrix[col][row] = i;', this.minxMatrix[col][row] = i;);
                     this.minxMatrix[col][row] = i;
                 }
             }
@@ -415,7 +418,9 @@ class SeamCarver {
                         for (var i = 0; i < 3; i ++) {
                             this.imageData.data[pos + i] = 0;
                         }
-                        if (direction >= 0 && direction <= 2) this.imageData.data[pos + direction] = 255;
+                        if (direction >= 0 && direction <= 2) {
+                            this.imageData.data[pos + direction] = 255;
+                        }
                         this.imageData.data[pos + 3] = 255;
                         continue;
                     } else {
