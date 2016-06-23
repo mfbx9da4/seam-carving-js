@@ -317,11 +317,11 @@ class SeamCarver {
 
         while (queue.length > 0) {
 
-            // This iterates in topological order because:
-            //  * The inital queue was compiled while iterating by row.
+            // This iterates in topological order (bottom to top) because:
+            //  * The inital queue was compiled while iterating bottom to top.
             //  * We are iterating by BFS, ie children are at the end of the
             //  queue.
-            // TODO: unit test to guarantee this
+            // TODO: FIXME: this is wrong need to iterate from bottom to top!
             var pixelIndex = queue.shift();
 
             // already explored this pixel
@@ -331,13 +331,17 @@ class SeamCarver {
 
             var col = this.indexToX(pixelIndex);
             var row = this.indexToY(pixelIndex);
+            if (maxRow !== row) {
+                maxRow = row;
+                console.log(maxRow);
+            }
             var nodeEnergy = this.energyMatrix[col][row];
             var oldVminsum = this.minsumMatrix[col][row];
             this.minsumMatrix[col][row] = Number.POSITIVE_INFINITY;
 
-            // check three parents in row below
+            // check three parents in row above
             for (var i = Math.max(col - 1, 0); i < Math.min(col + 1, lastCol); i ++) {
-                var parentVminsum = this.minsumMatrix[i][row + 1];
+                var parentVminsum = this.minsumMatrix[i][row - 1];
                 var newVminsum = parentVminsum + nodeEnergy;
 
                 // TODO: do I always need to update the vminsum for this node?
