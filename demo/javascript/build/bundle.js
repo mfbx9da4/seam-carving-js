@@ -404,7 +404,6 @@ class SeamCarver {
             this.canvas.style.cssText = '';
         }
 
-
         if (field === 'energy' || field === 'vminsum' || (field !== this.imageData.dataField)) {
             this.imageData = this.context.createImageData(this.width, this.height);
             this.imageData.dataField = field;
@@ -516,7 +515,7 @@ var demo = window.demo;
 demo.config = {
 	draw: {
 		field: 'rgb',
-		actualSize: false
+		actualSize: true
 	},
 	seamColor: "#32cd32",
 	autoIterate: false,
@@ -586,6 +585,10 @@ key('f', function () {
 	demo.findSeam();
 });
 
+key('a', function () {
+	demo.toggleActualSize();
+});
+
 key('e', function () {
 	demo.reDraw('energy');
 });
@@ -616,6 +619,11 @@ key('esc', function () {
 
 demo.reDraw = function (field) {
 	demo.config.draw.field = field;
+	demo.smc.reDrawImage(demo.config.draw);
+};
+
+demo.toggleActualSize = function () {
+	demo.config.draw.actualSize = !demo.config.draw.actualSize;
 	demo.smc.reDrawImage(demo.config.draw);
 };
 

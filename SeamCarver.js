@@ -403,7 +403,6 @@ class SeamCarver {
             this.canvas.style.cssText = '';
         }
 
-
         if (field === 'energy' || field === 'vminsum' || (field !== this.imageData.dataField)) {
             this.imageData = this.context.createImageData(this.width, this.height);
             this.imageData.dataField = field;
