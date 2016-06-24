@@ -289,13 +289,18 @@ class SeamCarver {
      * Takes field as arg to print matrix, default is rgb, accepts energy.
      *
      */
-    reDrawImage(field) {
+    reDrawImage(options) {
+        var field = options.field;
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.canvas.width = this.imageData.width;
         this.canvas.height = this.imageData.height;
 
-        this.canvas.style.width = this.imageData.width + 'px';
-        this.canvas.style.height = this.imageData.height + 'px';
+        if (options.actualSize) {
+            this.canvas.style.width = this.imageData.width + 'px';
+            this.canvas.style.height = this.imageData.height + 'px';
+        } else {
+            this.canvas.style.cssText = '';
+        }
 
         if (field === 'energy' || field === 'vminsum' || (field !== this.imageData.dataField)) {
             this.imageData = this.context.createImageData(this.width, this.height);
@@ -404,7 +409,10 @@ var key = require('keymaster');
 window.demo = {};
 var demo = window.demo;
 demo.config = {
-	drawField: 'rgb',
+	draw: {
+		field:'rgb',
+		actualSize: true
+	},
 	seamColor: "#32cd32",
 	autoIterate: false,
 	iterationState: 0
@@ -426,7 +434,7 @@ demo.findSeam = function (ctx) {
 demo.removeSeam = function () {
 	if (demo.currentSeam.length === 0) return;
 	demo.smc.removeVerticalSeam(demo.currentSeam);
-	demo.smc.reDrawImage(demo.config.drawField);
+	demo.smc.reDrawImage(demo.config.draw);
 	demo.currentSeam = [];
 };
 
@@ -449,6 +457,7 @@ demo.image.onload = function () {
 	demo.ctx = demo.canvas.getContext("2d");
 	demo.ctx.drawImage(demo.image, 0, 0);
 	demo.smc = new SeamCarver(demo.canvas);
+	demo.smc.reDrawImage(demo.config.draw);
 };
 
 demo.canvas.addEventListener('click', function (event) {
@@ -470,6 +479,10 @@ key('i', function () {
 
 key('f', function () {
 	demo.findSeam();
+});
+
+key('a', function () {
+	demo.toggleActualSize();
 });
 
 key('e', function () {
@@ -501,22 +514,27 @@ key('esc', function () {
 });
 
 demo.reDraw = function (field) {
-	demo.config.drawField = field;
-	demo.smc.reDrawImage(field);
+	demo.config.draw.field = field;
+	demo.smc.reDrawImage(demo.config.draw);
+};
+
+demo.toggleActualSize = function () {
+	demo.config.draw.actualSize = !demo.config.draw.actualSize;
+	demo.smc.reDrawImage(demo.config.draw);
 };
 
 demo.reset = function () {
 	demo.image.setAttribute('crossOrigin', '');
 	demo.image.crossOrigin = 'Anonymous';
 	// demo.image.src = 'images/3x4.png';
-	// demo.image.src = 'images/6x5.png';
+	demo.image.src = 'images/6x5.png';
 	// demo.image.src = 'images/70x70.png';
 	// demo.image.src = 'images/200x100.png';
 	// demo.image.src = 'images/chameleon.png';
 	// demo.image.src = 'images/HJocean.png';
 	// demo.image.src = 'images/butterfly.png';
 	// demo.image.src = 'images/1000x300.jpg';
-	demo.image.src = 'images/1000x500.jpg';
+	// demo.image.src = 'images/1000x500.jpg';
 	// demo.image.src = 'images/1600x1200.jpg';
 	// demo.image.src = 'https://cdn.hyperdev.com/us-east-1%3A095124f7-7022-4119-9d6a-68fd1e3dd7ef%2Fchameleon.png';
 };

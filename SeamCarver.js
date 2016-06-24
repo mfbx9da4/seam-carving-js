@@ -288,13 +288,18 @@ class SeamCarver {
      * Takes field as arg to print matrix, default is rgb, accepts energy.
      *
      */
-    reDrawImage(field) {
+    reDrawImage(options) {
+        var field = options.field;
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.canvas.width = this.imageData.width;
         this.canvas.height = this.imageData.height;
 
-        this.canvas.style.width = this.imageData.width + 'px';
-        this.canvas.style.height = this.imageData.height + 'px';
+        if (options.actualSize) {
+            this.canvas.style.width = this.imageData.width + 'px';
+            this.canvas.style.height = this.imageData.height + 'px';
+        } else {
+            this.canvas.style.cssText = '';
+        }
 
         if (field === 'energy' || field === 'vminsum' || (field !== this.imageData.dataField)) {
             this.imageData = this.context.createImageData(this.width, this.height);
