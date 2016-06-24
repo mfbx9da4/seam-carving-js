@@ -333,7 +333,7 @@ class SeamCarver {
             var row = this.indexToY(pixelIndex);
             if (maxRow !== row) {
                 maxRow = row;
-                console.log(maxRow);
+                // console.log(maxRow);
             }
             var nodeEnergy = this.energyMatrix[col][row];
             var oldVminsum = this.minsumMatrix[col][row];
@@ -389,13 +389,20 @@ class SeamCarver {
      * Takes field as arg to print matrix, default is rgb, accepts energy.
      *
      */
-    reDrawImage(field) {
+    reDrawImage(options) {
+        var field = options.field;
+        var actualSize = options.actualSize;
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.canvas.width = this.imageData.width;
         this.canvas.height = this.imageData.height;
 
-        this.canvas.style.width = this.imageData.width + 'px';
-        this.canvas.style.height = this.imageData.height + 'px';
+        if (actualSize) {
+            this.canvas.style.width = this.imageData.width + 'px';
+            this.canvas.style.height = this.imageData.height + 'px';
+        } else {
+            this.canvas.style.cssText = '';
+        }
+
 
         if (field === 'energy' || field === 'vminsum' || (field !== this.imageData.dataField)) {
             this.imageData = this.context.createImageData(this.width, this.height);
