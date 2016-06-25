@@ -352,6 +352,7 @@ class SeamCarver {
             if (row === 0) continue;
 
             // Only enqueue the children if the vminsum has changed
+            // TODO: verify this assumption
             if (oldVminsum === this.minsumMatrix[col][row]) continue;
 
             // enqueue three affected children from row above
