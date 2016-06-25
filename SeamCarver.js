@@ -332,12 +332,6 @@ class SeamCarver {
 
             marked[pixelIndex] = true;
 
-            if (maxRow !== row) {
-                maxRow = row;
-                // Should always progress bottom to top
-                // console.log('row', maxRow);
-            }
-            // console.log('pixel', col, row);
             var nodeEnergy = this.energyMatrix[col][row];
             var oldVminsum = this.minsumMatrix[col][row];
             this.minsumMatrix[col][row] = Number.POSITIVE_INFINITY;
@@ -357,8 +351,7 @@ class SeamCarver {
             // above so skip next step.
             if (row === 0) continue;
 
-            // Only enqueue the children if the vminsum
-            // has not been changed
+            // Only enqueue the children if the vminsum has changed
             if (oldVminsum === this.minsumMatrix[col][row]) continue;
 
             // enqueue three affected children from row above
