@@ -4,6 +4,7 @@ const RED = 0;
 const GREEN = 1;
 const BLUE = 2;
 const BORDER_ENERGY = 1000;
+var Heap = require('heap');
 
 /** Seam carver removes low energy seams in an image from HTML5 canvas. */
 class SeamCarver {
@@ -277,20 +278,21 @@ class SeamCarver {
      * Recalculate energy only when necessary: pixels adjacent
      * (up, down and both sides) to the removed seam, ie the affected
      * pixels.
-     * For any affected pixel, if the new energy is less than the previous one
+     * For any affected pixel, if the new energy is different to the previous one
      * it's vmin sum must be recalculated therefore it is added to an array
      * and returned by this method.
      *
      * @return {list} List of affected pixels for which the vminsum may be affected.
      */
     recalculateEnergiesAndFindAffectedPixels(vseam) {
-        var queue = [];
+        var queue = new Heap((a,b)=>b-a);
 
+        // bottom to top, ignore last row
         for (var row = this.height - 2; row >= 0; row--) {
             var deletedCol = vseam[row];
 
             // TODO: check this covers all cases (up, down, left, right)
-            for (var i = -2; i < 3; i ++) {
+            for (var i = -1; i < 1; i ++) {
                 var col = deletedCol + i;
 
                 if (this.pixelInRange(col, row)) {
@@ -311,18 +313,19 @@ class SeamCarver {
      */
     recalculateVminsumForAffectedPixels(queue) {
         var marked = {};
+        var enqueued = {};
         var maxRow = -1;
         // used later in loop so as not to go past borders
-        var lastCol = (this.width * 4) - 1;
+        var lastCol = this.width - 1;
 
-        while (queue.length > 0) {
+        while (queue.nodes.length > 0) {
 
             // This iterates in topological order (bottom to top) because:
             //  * The inital queue was compiled while iterating bottom to top.
             //  * We are iterating by BFS, ie children are at the end of the
             //  queue.
             // TODO: FIXME: this is wrong need to iterate from bottom to top!
-            var pixelIndex = queue.shift();
+            var pixelIndex = queue.pop();
 
             // already explored this pixel
             if (marked[pixelIndex]) continue;
@@ -333,15 +336,16 @@ class SeamCarver {
             var row = this.indexToY(pixelIndex);
             if (maxRow !== row) {
                 maxRow = row;
-                // console.log(maxRow);
+                // console.log('row', maxRow);
             }
+            // console.log('pixel', col, row);
             var nodeEnergy = this.energyMatrix[col][row];
             var oldVminsum = this.minsumMatrix[col][row];
             this.minsumMatrix[col][row] = Number.POSITIVE_INFINITY;
 
-            // check three parents in row above
-            for (var i = Math.max(col - 1, 0); i < Math.min(col + 1, lastCol); i ++) {
-                var parentVminsum = this.minsumMatrix[i][row - 1];
+            // check three parents in row below
+            for (var i = Math.max(col - 1, 0); i < Math.min(col + 2, lastCol + 1); i ++) {
+                var parentVminsum = this.minsumMatrix[i][row + 1];
                 var newVminsum = parentVminsum + nodeEnergy;
 
                 // TODO: do I always need to update the vminsum for this node?
@@ -351,26 +355,23 @@ class SeamCarver {
                 }
             }
 
-            if (oldVminsum !== this.minsumMatrix[col][row] && row > 0) {
-                // TODO: do I need to enqueue all children
-                // found better path from parent
-                // so enqueue three affected children from row above
-                for (var i = Math.max(col - 1, 0); i < Math.min(col + 1, lastCol); i ++) {
-                    queue.push(this.pixelToIndex(i, row - 1));
+            // If we are on first row, no potentially affected children in row
+            // above so skip next step.
+            if (row === 0) continue;
+
+            // If the vminsum for this node has changed, children could be
+            // affected so enqueue them.
+            // if (oldVminsum !== this.minsumMatrix[col][row]) {}
+
+            // enqueue three affected children from row above
+            for (var i = Math.max(col - 1, 0); i < Math.min(col + 2, lastCol + 1); i ++) {
+                var childIndex = this.pixelToIndex(i, row - 1);
+                if (!enqueued[childIndex]) {
+                    enqueued[childIndex] = true;
+                    queue.push(childIndex);
                 }
             }
         }
-
-        // now update energy matrix
-        // for (var row = this.height - 1; row >= 0; row--) {
-        //     for (var col = 0; col < this.width; col++) {
-        //         // TODO recalculate energy only when necessary: pixels adjacent (up, down and both sides) to the removed seam.
-        //         var energy = this.recalculate(col, row);
-        //         this.energyMatrix[col][row] = energy.energy;
-        //         this.minsumMatrix[col][row] = energy.vminsum;
-        //         this.minxMatrix[col][row] = energy.minx;
-        //     }
-        // }
     }
 
     /**
@@ -419,7 +420,7 @@ class SeamCarver {
                         var normalizedVal = ((val - 1000) / (this.maxVminsum - 1000)) * 255
                     } else if (field === 'minx') {
                         var val = this.minxMatrix[col][row];
-                        var direction = col - val + 1;
+                        var direction = val - col + 1;
                         for (var i = 0; i < 3; i ++) {
                             this.imageData.data[pos + i] = 0;
                         }
@@ -487,7 +488,7 @@ class SeamCarver {
                         val = this.minxMatrix[x][y];
                     }
 
-                    if (val) {
+                    if (val || val === 0) {
                         lines += val.toFixed(2) + "\t";
                     } else {
                         lines += '-----\t';

@@ -57,10 +57,6 @@ demo.image.onload = function () {
 	demo.smc.reDrawImage(demo.config.draw);
 };
 
-demo.canvas.addEventListener('click', function (event) {
-	demo.iterate();
-});
-
 demo.togglePixelation = function () {
 	if (demo.canvas.style.imageRendering === 'pixelated') {
 		demo.canvas.style.imageRendering = 'auto';
@@ -128,7 +124,7 @@ demo.reset = function () {
 	// demo.image.src = 'images/12x10.png';
 	// demo.image.src = 'images/70x70.png';
 	// demo.image.src = 'images/200x100.png';
-	// demo.image.src = 'images/chameleon.png';
+	demo.image.src = 'images/chameleon.png';
 	// demo.image.src = 'images/HJocean.png';
 	// demo.image.src = 'images/IMG_4445.jpg';
 	// demo.image.src = 'images/white_building_in_field_by_mslash67.jpg';

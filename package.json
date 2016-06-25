@@ -8,6 +8,7 @@
     "canvas": "^1.3.12",
     "gulp": "^3.9.1",
     "gulp-mocha": "^2.2.0",
+    "heap": "^0.2.6",
     "keymaster": "^1.6.2"
   },
   "devDependencies": {

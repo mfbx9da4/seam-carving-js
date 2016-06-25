@@ -5,6 +5,7 @@ const RED = 0;
 const GREEN = 1;
 const BLUE = 2;
 const BORDER_ENERGY = 1000;
+var Heap = require('heap');
 
 /** Seam carver removes low energy seams in an image from HTML5 canvas. */
 class SeamCarver {
@@ -278,20 +279,21 @@ class SeamCarver {
      * Recalculate energy only when necessary: pixels adjacent
      * (up, down and both sides) to the removed seam, ie the affected
      * pixels.
-     * For any affected pixel, if the new energy is less than the previous one
+     * For any affected pixel, if the new energy is different to the previous one
      * it's vmin sum must be recalculated therefore it is added to an array
      * and returned by this method.
      *
      * @return {list} List of affected pixels for which the vminsum may be affected.
      */
     recalculateEnergiesAndFindAffectedPixels(vseam) {
-        var queue = [];
+        var queue = new Heap((a,b)=>b-a);
 
+        // bottom to top, ignore last row
         for (var row = this.height - 2; row >= 0; row--) {
             var deletedCol = vseam[row];
 
             // TODO: check this covers all cases (up, down, left, right)
-            for (var i = -2; i < 3; i ++) {
+            for (var i = -1; i < 1; i ++) {
                 var col = deletedCol + i;
 
                 if (this.pixelInRange(col, row)) {
@@ -312,18 +314,19 @@ class SeamCarver {
      */
     recalculateVminsumForAffectedPixels(queue) {
         var marked = {};
+        var enqueued = {};
         var maxRow = -1;
         // used later in loop so as not to go past borders
-        var lastCol = (this.width * 4) - 1;
+        var lastCol = this.width - 1;
 
-        while (queue.length > 0) {
+        while (queue.nodes.length > 0) {
 
             // This iterates in topological order (bottom to top) because:
             //  * The inital queue was compiled while iterating bottom to top.
             //  * We are iterating by BFS, ie children are at the end of the
             //  queue.
             // TODO: FIXME: this is wrong need to iterate from bottom to top!
-            var pixelIndex = queue.shift();
+            var pixelIndex = queue.pop();
 
             // already explored this pixel
             if (marked[pixelIndex]) continue;
@@ -334,15 +337,16 @@ class SeamCarver {
             var row = this.indexToY(pixelIndex);
             if (maxRow !== row) {
                 maxRow = row;
-                // console.log(maxRow);
+                // console.log('row', maxRow);
             }
+            // console.log('pixel', col, row);
             var nodeEnergy = this.energyMatrix[col][row];
             var oldVminsum = this.minsumMatrix[col][row];
             this.minsumMatrix[col][row] = Number.POSITIVE_INFINITY;
 
-            // check three parents in row above
-            for (var i = Math.max(col - 1, 0); i < Math.min(col + 1, lastCol); i ++) {
-                var parentVminsum = this.minsumMatrix[i][row - 1];
+            // check three parents in row below
+            for (var i = Math.max(col - 1, 0); i < Math.min(col + 2, lastCol + 1); i ++) {
+                var parentVminsum = this.minsumMatrix[i][row + 1];
                 var newVminsum = parentVminsum + nodeEnergy;
 
                 // TODO: do I always need to update the vminsum for this node?
@@ -352,26 +356,23 @@ class SeamCarver {
                 }
             }
 
-            if (oldVminsum !== this.minsumMatrix[col][row] && row > 0) {
-                // TODO: do I need to enqueue all children
-                // found better path from parent
-                // so enqueue three affected children from row above
-                for (var i = Math.max(col - 1, 0); i < Math.min(col + 1, lastCol); i ++) {
-                    queue.push(this.pixelToIndex(i, row - 1));
+            // If we are on first row, no potentially affected children in row
+            // above so skip next step.
+            if (row === 0) continue;
+
+            // If the vminsum for this node has changed, children could be
+            // affected so enqueue them.
+            // if (oldVminsum !== this.minsumMatrix[col][row]) {}
+
+            // enqueue three affected children from row above
+            for (var i = Math.max(col - 1, 0); i < Math.min(col + 2, lastCol + 1); i ++) {
+                var childIndex = this.pixelToIndex(i, row - 1);
+                if (!enqueued[childIndex]) {
+                    enqueued[childIndex] = true;
+                    queue.push(childIndex);
                 }
             }
         }
-
-        // now update energy matrix
-        // for (var row = this.height - 1; row >= 0; row--) {
-        //     for (var col = 0; col < this.width; col++) {
-        //         // TODO recalculate energy only when necessary: pixels adjacent (up, down and both sides) to the removed seam.
-        //         var energy = this.recalculate(col, row);
-        //         this.energyMatrix[col][row] = energy.energy;
-        //         this.minsumMatrix[col][row] = energy.vminsum;
-        //         this.minxMatrix[col][row] = energy.minx;
-        //     }
-        // }
     }
 
     /**
@@ -420,7 +421,7 @@ class SeamCarver {
                         var normalizedVal = ((val - 1000) / (this.maxVminsum - 1000)) * 255
                     } else if (field === 'minx') {
                         var val = this.minxMatrix[col][row];
-                        var direction = col - val + 1;
+                        var direction = val - col + 1;
                         for (var i = 0; i < 3; i ++) {
                             this.imageData.data[pos + i] = 0;
                         }
@@ -488,7 +489,7 @@ class SeamCarver {
                         val = this.minxMatrix[x][y];
                     }
 
-                    if (val) {
+                    if (val || val === 0) {
                         lines += val.toFixed(2) + "\t";
                     } else {
                         lines += '-----\t';
@@ -504,7 +505,7 @@ class SeamCarver {
 
 module.exports = SeamCarver;
 
-},{}],2:[function(require,module,exports){
+},{"heap":3}],2:[function(require,module,exports){
 "use strict";
 
 var SeamCarver = require('../../../SeamCarver');
@@ -563,10 +564,6 @@ demo.image.onload = function () {
 	demo.smc = new SeamCarver(demo.canvas);
 	demo.smc.reDrawImage(demo.config.draw);
 };
-
-demo.canvas.addEventListener('click', function (event) {
-	demo.iterate();
-});
 
 demo.togglePixelation = function () {
 	if (demo.canvas.style.imageRendering === 'pixelated') {
@@ -635,7 +632,7 @@ demo.reset = function () {
 	// demo.image.src = 'images/12x10.png';
 	// demo.image.src = 'images/70x70.png';
 	// demo.image.src = 'images/200x100.png';
-	// demo.image.src = 'images/chameleon.png';
+	demo.image.src = 'images/chameleon.png';
 	// demo.image.src = 'images/HJocean.png';
 	// demo.image.src = 'images/IMG_4445.jpg';
 	// demo.image.src = 'images/white_building_in_field_by_mslash67.jpg';
@@ -648,7 +645,387 @@ demo.reset = function () {
 
 demo.reset();
 
-},{"../../../SeamCarver":1,"keymaster":3}],3:[function(require,module,exports){
+},{"../../../SeamCarver":1,"keymaster":5}],3:[function(require,module,exports){
+module.exports = require('./lib/heap');
+
+},{"./lib/heap":4}],4:[function(require,module,exports){
+// Generated by CoffeeScript 1.8.0
+(function() {
+  var Heap, defaultCmp, floor, heapify, heappop, heappush, heappushpop, heapreplace, insort, min, nlargest, nsmallest, updateItem, _siftdown, _siftup;
+
+  floor = Math.floor, min = Math.min;
+
+
+  /*
+  Default comparison function to be used
+   */
+
+  defaultCmp = function(x, y) {
+    if (x < y) {
+      return -1;
+    }
+    if (x > y) {
+      return 1;
+    }
+    return 0;
+  };
+
+
+  /*
+  Insert item x in list a, and keep it sorted assuming a is sorted.
+  
+  If x is already in a, insert it to the right of the rightmost x.
+  
+  Optional args lo (default 0) and hi (default a.length) bound the slice
+  of a to be searched.
+   */
+
+  insort = function(a, x, lo, hi, cmp) {
+    var mid;
+    if (lo == null) {
+      lo = 0;
+    }
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    if (lo < 0) {
+      throw new Error('lo must be non-negative');
+    }
+    if (hi == null) {
+      hi = a.length;
+    }
+    while (lo < hi) {
+      mid = floor((lo + hi) / 2);
+      if (cmp(x, a[mid]) < 0) {
+        hi = mid;
+      } else {
+        lo = mid + 1;
+      }
+    }
+    return ([].splice.apply(a, [lo, lo - lo].concat(x)), x);
+  };
+
+
+  /*
+  Push item onto heap, maintaining the heap invariant.
+   */
+
+  heappush = function(array, item, cmp) {
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    array.push(item);
+    return _siftdown(array, 0, array.length - 1, cmp);
+  };
+
+
+  /*
+  Pop the smallest item off the heap, maintaining the heap invariant.
+   */
+
+  heappop = function(array, cmp) {
+    var lastelt, returnitem;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    lastelt = array.pop();
+    if (array.length) {
+      returnitem = array[0];
+      array[0] = lastelt;
+      _siftup(array, 0, cmp);
+    } else {
+      returnitem = lastelt;
+    }
+    return returnitem;
+  };
+
+
+  /*
+  Pop and return the current smallest value, and add the new item.
+  
+  This is more efficient than heappop() followed by heappush(), and can be
+  more appropriate when using a fixed size heap. Note that the value
+  returned may be larger than item! That constrains reasonable use of
+  this routine unless written as part of a conditional replacement:
+      if item > array[0]
+        item = heapreplace(array, item)
+   */
+
+  heapreplace = function(array, item, cmp) {
+    var returnitem;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    returnitem = array[0];
+    array[0] = item;
+    _siftup(array, 0, cmp);
+    return returnitem;
+  };
+
+
+  /*
+  Fast version of a heappush followed by a heappop.
+   */
+
+  heappushpop = function(array, item, cmp) {
+    var _ref;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    if (array.length && cmp(array[0], item) < 0) {
+      _ref = [array[0], item], item = _ref[0], array[0] = _ref[1];
+      _siftup(array, 0, cmp);
+    }
+    return item;
+  };
+
+
+  /*
+  Transform list into a heap, in-place, in O(array.length) time.
+   */
+
+  heapify = function(array, cmp) {
+    var i, _i, _j, _len, _ref, _ref1, _results, _results1;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    _ref1 = (function() {
+      _results1 = [];
+      for (var _j = 0, _ref = floor(array.length / 2); 0 <= _ref ? _j < _ref : _j > _ref; 0 <= _ref ? _j++ : _j--){ _results1.push(_j); }
+      return _results1;
+    }).apply(this).reverse();
+    _results = [];
+    for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+      i = _ref1[_i];
+      _results.push(_siftup(array, i, cmp));
+    }
+    return _results;
+  };
+
+
+  /*
+  Update the position of the given item in the heap.
+  This function should be called every time the item is being modified.
+   */
+
+  updateItem = function(array, item, cmp) {
+    var pos;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    pos = array.indexOf(item);
+    if (pos === -1) {
+      return;
+    }
+    _siftdown(array, 0, pos, cmp);
+    return _siftup(array, pos, cmp);
+  };
+
+
+  /*
+  Find the n largest elements in a dataset.
+   */
+
+  nlargest = function(array, n, cmp) {
+    var elem, result, _i, _len, _ref;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    result = array.slice(0, n);
+    if (!result.length) {
+      return result;
+    }
+    heapify(result, cmp);
+    _ref = array.slice(n);
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      elem = _ref[_i];
+      heappushpop(result, elem, cmp);
+    }
+    return result.sort(cmp).reverse();
+  };
+
+
+  /*
+  Find the n smallest elements in a dataset.
+   */
+
+  nsmallest = function(array, n, cmp) {
+    var elem, i, los, result, _i, _j, _len, _ref, _ref1, _results;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    if (n * 10 <= array.length) {
+      result = array.slice(0, n).sort(cmp);
+      if (!result.length) {
+        return result;
+      }
+      los = result[result.length - 1];
+      _ref = array.slice(n);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        elem = _ref[_i];
+        if (cmp(elem, los) < 0) {
+          insort(result, elem, 0, null, cmp);
+          result.pop();
+          los = result[result.length - 1];
+        }
+      }
+      return result;
+    }
+    heapify(array, cmp);
+    _results = [];
+    for (i = _j = 0, _ref1 = min(n, array.length); 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+      _results.push(heappop(array, cmp));
+    }
+    return _results;
+  };
+
+  _siftdown = function(array, startpos, pos, cmp) {
+    var newitem, parent, parentpos;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    newitem = array[pos];
+    while (pos > startpos) {
+      parentpos = (pos - 1) >> 1;
+      parent = array[parentpos];
+      if (cmp(newitem, parent) < 0) {
+        array[pos] = parent;
+        pos = parentpos;
+        continue;
+      }
+      break;
+    }
+    return array[pos] = newitem;
+  };
+
+  _siftup = function(array, pos, cmp) {
+    var childpos, endpos, newitem, rightpos, startpos;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    endpos = array.length;
+    startpos = pos;
+    newitem = array[pos];
+    childpos = 2 * pos + 1;
+    while (childpos < endpos) {
+      rightpos = childpos + 1;
+      if (rightpos < endpos && !(cmp(array[childpos], array[rightpos]) < 0)) {
+        childpos = rightpos;
+      }
+      array[pos] = array[childpos];
+      pos = childpos;
+      childpos = 2 * pos + 1;
+    }
+    array[pos] = newitem;
+    return _siftdown(array, startpos, pos, cmp);
+  };
+
+  Heap = (function() {
+    Heap.push = heappush;
+
+    Heap.pop = heappop;
+
+    Heap.replace = heapreplace;
+
+    Heap.pushpop = heappushpop;
+
+    Heap.heapify = heapify;
+
+    Heap.updateItem = updateItem;
+
+    Heap.nlargest = nlargest;
+
+    Heap.nsmallest = nsmallest;
+
+    function Heap(cmp) {
+      this.cmp = cmp != null ? cmp : defaultCmp;
+      this.nodes = [];
+    }
+
+    Heap.prototype.push = function(x) {
+      return heappush(this.nodes, x, this.cmp);
+    };
+
+    Heap.prototype.pop = function() {
+      return heappop(this.nodes, this.cmp);
+    };
+
+    Heap.prototype.peek = function() {
+      return this.nodes[0];
+    };
+
+    Heap.prototype.contains = function(x) {
+      return this.nodes.indexOf(x) !== -1;
+    };
+
+    Heap.prototype.replace = function(x) {
+      return heapreplace(this.nodes, x, this.cmp);
+    };
+
+    Heap.prototype.pushpop = function(x) {
+      return heappushpop(this.nodes, x, this.cmp);
+    };
+
+    Heap.prototype.heapify = function() {
+      return heapify(this.nodes, this.cmp);
+    };
+
+    Heap.prototype.updateItem = function(x) {
+      return updateItem(this.nodes, x, this.cmp);
+    };
+
+    Heap.prototype.clear = function() {
+      return this.nodes = [];
+    };
+
+    Heap.prototype.empty = function() {
+      return this.nodes.length === 0;
+    };
+
+    Heap.prototype.size = function() {
+      return this.nodes.length;
+    };
+
+    Heap.prototype.clone = function() {
+      var heap;
+      heap = new Heap();
+      heap.nodes = this.nodes.slice(0);
+      return heap;
+    };
+
+    Heap.prototype.toArray = function() {
+      return this.nodes.slice(0);
+    };
+
+    Heap.prototype.insert = Heap.prototype.push;
+
+    Heap.prototype.top = Heap.prototype.peek;
+
+    Heap.prototype.front = Heap.prototype.peek;
+
+    Heap.prototype.has = Heap.prototype.contains;
+
+    Heap.prototype.copy = Heap.prototype.clone;
+
+    return Heap;
+
+  })();
+
+  (function(root, factory) {
+    if (typeof define === 'function' && define.amd) {
+      return define([], factory);
+    } else if (typeof exports === 'object') {
+      return module.exports = factory();
+    } else {
+      return root.Heap = factory();
+    }
+  })(this, function() {
+    return Heap;
+  });
+
+}).call(this);
+
+},{}],5:[function(require,module,exports){
 //     keymaster.js
 //     (c) 2011-2013 Thomas Fuchs
 //     keymaster.js may be freely distributed under the MIT license.
