@@ -357,9 +357,9 @@ class SeamCarver {
             // above so skip next step.
             if (row === 0) continue;
 
-            // TODO: Do I have to enqueue the children even if the vminsum
-            // has not been changed? ie
-            // if (oldVminsum !== this.minsumMatrix[col][row]) {}
+            // Only enqueue the children if the vminsum
+            // has not been changed
+            if (oldVminsum === this.minsumMatrix[col][row]) continue;
 
             // enqueue three affected children from row above
             for (var i = Math.max(col - 1, 0); i < Math.min(col + 2, lastCol + 1); i ++) {
