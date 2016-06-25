@@ -286,25 +286,24 @@ class SeamCarver {
      * @return {list} List of affected pixels for which the vminsum may be affected.
      */
     recalculateEnergiesAndFindAffectedPixels(vseam) {
-        var queue = new Heap((a,b)=>b-a);
+        var queue = [];
 
         // bottom to top, ignore last row
         for (var row = this.height - 2; row >= 0; row--) {
             var deletedCol = vseam[row];
+            var affectedCols = [];
 
             // TODO: check this covers all cases (up, down, left, right)
             for (var i = -1; i < 1; i ++) {
                 var col = deletedCol + i;
 
                 if (this.pixelInRange(col, row)) {
-                    var newValue = this.recalculate(col, row);
-                    this.energyMatrix[col][row] = newValue.energy;
-                    this.minxMatrix[col][row] = newValue.minx;
-                    this.minsumMatrix[col][row] = newValue.vminsum;
+                    this.energyMatrix[col][row] = this.energy(col, row);
                     // enqueue pixel in range
-                    queue.push(this.pixelToIndex(col, row));
+                    affectedCols.push(col);
                 }
             }
+            queue[row] = affectedCols;
         }
         return queue;
     }
@@ -316,27 +315,27 @@ class SeamCarver {
         var marked = {};
         var enqueued = {};
         var maxRow = -1;
+        // start at second to last row
+        var row = this.height - 2;
+        var enqueuedCols = queue[row];
         // used later in loop so as not to go past borders
         var lastCol = this.width - 1;
 
-        while (queue.nodes.length > 0) {
+        while (enqueuedCols) {
 
-            // This iterates in topological order (bottom to top) because:
-            //  * The inital queue was compiled while iterating bottom to top.
-            //  * We are iterating by BFS, ie children are at the end of the
-            //  queue.
-            // TODO: FIXME: this is wrong need to iterate from bottom to top!
-            var pixelIndex = queue.pop();
+            // This iterates in topological order (bottom to top)
+            var col = enqueuedCols.pop();
+            var pixelIndex = this.pixelToIndex(col, row);
+            if (enqueuedCols.length === 0) enqueuedCols = queue[--row];
 
             // already explored this pixel
             if (marked[pixelIndex]) continue;
 
             marked[pixelIndex] = true;
 
-            var col = this.indexToX(pixelIndex);
-            var row = this.indexToY(pixelIndex);
             if (maxRow !== row) {
                 maxRow = row;
+                // Should always progress bottom to top
                 // console.log('row', maxRow);
             }
             // console.log('pixel', col, row);
@@ -349,7 +348,6 @@ class SeamCarver {
                 var parentVminsum = this.minsumMatrix[i][row + 1];
                 var newVminsum = parentVminsum + nodeEnergy;
 
-                // TODO: do I always need to update the vminsum for this node?
                 if (newVminsum < this.minsumMatrix[col][row]) {
                     this.minsumMatrix[col][row] = newVminsum;
                     this.minxMatrix[col][row] = i;
@@ -360,8 +358,8 @@ class SeamCarver {
             // above so skip next step.
             if (row === 0) continue;
 
-            // If the vminsum for this node has changed, children could be
-            // affected so enqueue them.
+            // TODO: Do I have to enqueue the children even if the vminsum
+            // has not been changed? ie
             // if (oldVminsum !== this.minsumMatrix[col][row]) {}
 
             // enqueue three affected children from row above
@@ -369,7 +367,7 @@ class SeamCarver {
                 var childIndex = this.pixelToIndex(i, row - 1);
                 if (!enqueued[childIndex]) {
                     enqueued[childIndex] = true;
-                    queue.push(childIndex);
+                    queue[row - 1].push(i);
                 }
             }
         }
