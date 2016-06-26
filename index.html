@@ -39,7 +39,7 @@
 			flex-direction: row;
 		}
 
-		header button {
+		header > * {
 			flex: 1;
 		}
 	</style>
@@ -56,6 +56,25 @@
 			<button onclick="demo.findSeam()">Find Seam (F)</button>
 			<button onclick="demo.removeSeam()">Remove Seam (R)</button>
 			<button onclick="demo.reset()">Reset (ESC)</button>
+			<select style="display:none" onchange="demo.changeImage()" name="select-image" id="select-image">
+				<option value="'images/3x4.png'">3x4.png</option>
+				<option value="'images/6x5.png'">6x5.png</option>
+				<option value="'images/12x10.png'">12x10.png</option>
+				<option value="'images/70x70.png'">70x70.png</option>
+				<option value="'images/200x100.png'">200x100.png</option>
+				<option value="'images/chameleon.png'">chameleon.png</option>
+				<option value="'images/HJocean.png'">HJocean.png</option>
+				<option value="'images/IMG_4445.jpg'">IMG_4445.jpg</option>
+				<option value="'images/white_building_in_field_by_mslash67.jpg'">white_building_in_field_by_mslash67.jpg</option>
+				<option value="'images/butterfly.png'">butterfly.png</option>
+				<option value="'images/1000x300.jpg'">1000x300.jpg</option>
+				<option value="'images/1000x500.jpg'">1000x500.jpg</option>
+				<option value="'images/1600x1200.jpg'">1600x1200.jpg</option>
+				<option value="'https://cdn.hyperdev.com/us-east-1%3A095124f7-7022-4119-9d6a-68fd1e3dd7ef%2Fchameleon.png'">'https://cdn.hyperdev.com/us-east-1%3A095124f7-7022-4119-9d6a-68fd1e3dd7ef%2Fchameleon.png</option>
+				<option value="'https://cdn.hyperdev.com/us-east-1%3A095124f7-7022-4119-9d6a-68fd1e3dd7ef%2Fbutterfly.jpg'">'https://cdn.hyperdev.com/us-east-1%3A095124f7-7022-4119-9d6a-68fd1e3dd7ef%2Fbutterfly.jpg</option>
+				<option value="'https://cdn.hyperdev.com/us-east-1%3A095124f7-7022-4119-9d6a-68fd1e3dd7ef%2Fbamboo.jpg'">'https://cdn.hyperdev.com/us-east-1%3A095124f7-7022-4119-9d6a-68fd1e3dd7ef%2Fbamboo.jpg</option>
+				<option value="'https://cdn.hyperdev.com/us-east-1%3A095124f7-7022-4119-9d6a-68fd1e3dd7ef%2Fanimals.jpg'">'https://cdn.hyperdev.com/us-east-1%3A095124f7-7022-4119-9d6a-68fd1e3dd7ef%2Fanimals.jpg</option>
+			</select>
 	</header>
 	<div class="wrapper">
 		<canvas class="image"></canvas>

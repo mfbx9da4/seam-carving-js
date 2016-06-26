@@ -393,7 +393,8 @@ class SeamCarver {
             this.canvas.style.width = this.imageData.width + 'px';
             this.canvas.style.height = this.imageData.height + 'px';
         } else {
-            this.canvas.style.cssText = '';
+            this.canvas.style.width = 'inherit';
+            this.canvas.style.height = 'inherit';
         }
 
         if (field === 'energy' || field === 'vminsum' || (field !== this.imageData.dataField)) {
