@@ -4,7 +4,6 @@ const RED = 0;
 const GREEN = 1;
 const BLUE = 2;
 const BORDER_ENERGY = 1000;
-var Heap = require('heap');
 
 /** Seam carver removes low energy seams in an image from HTML5 canvas. */
 class SeamCarver {
