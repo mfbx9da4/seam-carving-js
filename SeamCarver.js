@@ -108,6 +108,7 @@ class SeamCarver {
 
         var p = this.picture; // Just to make it more readable ...
 
+        // TODO: Should include self in this calculation
         var score = Math.sqrt(
             (p[pos_xpost+RED]   - p[pos_xant+RED])  *(p[pos_xpost+RED]   - p[pos_xant+RED]) +
             (p[pos_xpost+GREEN] - p[pos_xant+GREEN])*(p[pos_xpost+GREEN] - p[pos_xant+GREEN]) +

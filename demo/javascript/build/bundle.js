@@ -109,6 +109,7 @@ class SeamCarver {
 
         var p = this.picture; // Just to make it more readable ...
 
+        // TODO: Should include self in this calculation
         var score = Math.sqrt(
             (p[pos_xpost+RED]   - p[pos_xant+RED])  *(p[pos_xpost+RED]   - p[pos_xant+RED]) +
             (p[pos_xpost+GREEN] - p[pos_xant+GREEN])*(p[pos_xpost+GREEN] - p[pos_xant+GREEN]) +
@@ -633,7 +634,7 @@ demo.reset = function () {
 		// demo.image.src = 'images/IMG_4445.jpg';
 		// demo.image.src = 'images/white_building_in_field_by_mslash67.jpg';
 		// demo.image.src = 'images/butterfly.png';
-		// demo.image.src = 'images/1000x300.jpg';
+		demo.image.src = 'images/1000x300.jpg';
 		// demo.image.src = 'images/1000x500.jpg';
 		// demo.image.src = 'images/1600x1200.jpg';
 		// demo.image.src = 'https://cdn.hyperdev.com/us-east-1%3A095124f7-7022-4119-9d6a-68fd1e3dd7ef%2Fchameleon.png';
