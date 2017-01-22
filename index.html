@@ -28,17 +28,19 @@
 			-webkit-transition: width 0.2s, height 0.2s; /* Safari */
 			transition: width 0.2s, height 0.2s;
 		}
+
+		.remove-seam {
+			display: none;
+		}
+
 		header {
-			position: fixed;
 			z-index: 9;
-			top: 0;
-			left: 0;
 			width: 100%;
 			display: flex;
 			flex-direction: row;
 		}
 
-		header button {
+		header > * {
 			flex: 1;
 		}
 	</style>
@@ -52,13 +54,17 @@
 			<button onclick="demo.reDraw('minx')">Minx (X)</button>
 			<button onclick="demo.reDraw()">Color (C)</button>
 			<button onclick="demo.iterate()">Iterate (I)</button>
-			<button onclick="demo.findSeam()">Find Seam (F)</button>
-			<button onclick="demo.removeSeam()">Remove Seam (R)</button>
+			<button onclick="demo.findSeam()" class="find-seam">Find Seam (F)</button>
+			<button onclick="demo.removeSeam()" class="remove-seam">Remove Seam (R)</button>
 			<button onclick="demo.reset()">Reset (ESC)</button>
+	</header>
+	<header>
+		<label>Change image: <select onchange="demo.changeImage(this.value)" name="select-image" id="select-image">
+		</select></label>
 	</header>
 	<div class="wrapper">
 		<canvas class="image"></canvas>
 	</div>
-	<script type="text/javascript" src="/demo/javascript/build/bundle.js"></script>
+	<script type="text/javascript" src="demo/javascript/build/bundle.js"></script>
 </body>
 </html>

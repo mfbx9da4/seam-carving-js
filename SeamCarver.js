@@ -51,19 +51,19 @@ class SeamCarver {
      *
      */
     pixelToIndex(x, y) {
-        if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
-            throw new java.lang.IndexOutOfBoundsException();
+        if (x < 0 || x >= (this.width * 4) || y < 0 || y >= this.height) {
+            throw new Error('IndexOutOfBoundsException : ' +  x + ',' + y);
         }
         // * 4 for rgba
         return ((y * this.width) + x) * 4;
     }
 
     indexToX(index) {
-        return index % this.width;
+        return parseInt((index / 4) % this.width);
     }
 
     indexToY(index) {
-        return index / this.width;
+        return parseInt(index / (this.width * 4));
     }
 
 
@@ -108,6 +108,7 @@ class SeamCarver {
 
         var p = this.picture; // Just to make it more readable ...
 
+        // TODO: Could include self in this calculation
         var score = Math.sqrt(
             (p[pos_xpost+RED]   - p[pos_xant+RED])  *(p[pos_xpost+RED]   - p[pos_xant+RED]) +
             (p[pos_xpost+GREEN] - p[pos_xant+GREEN])*(p[pos_xpost+GREEN] - p[pos_xant+GREEN]) +
@@ -225,11 +226,11 @@ class SeamCarver {
     }
 
     /**
-     * Removes vertical seam.
-     * Recalculates pixels depending on removed pixel.
+     * Remove pixels from rgb, energy and vminsum representations
+     * of image.
      *
      */
-    removeVerticalSeam(vseam) {
+    removePixelsFromDataStructures(vseam) {
         this.imageData = this.context.createImageData(this.width - 1, this.height);
         for (var row = this.height - 1; row >= 0; row--) {
             var deletedCol = vseam[row];
@@ -271,34 +272,127 @@ class SeamCarver {
         this.minsumMatrix.splice(this.width - 1, 1);
         this.picture = this.imageData.data;
         this.width--;
+    }
 
-        // now update energy matrix
-        for (var row = this.height - 1; row >= 0; row--) {
-            for (var col = 0; col < this.width; col++) {
-                // TODO recalculate energy only when necessary: pixels adjacent (up, down and both sides) to the removed seam.
-                var energy = this.recalculate(col, row);
-                this.energyMatrix[col][row] = energy.energy;
-                this.minsumMatrix[col][row] = energy.vminsum;
-                this.minxMatrix[col][row] = energy.minx;
+    /**
+     * Recalculate energy only when necessary: pixels adjacent
+     * (up, down and both sides) to the removed seam, ie the affected
+     * pixels.
+     * For any affected pixel, if the new energy is different to the previous one
+     * it's vmin sum must be recalculated therefore it is added to an array
+     * and returned by this method.
+     *
+     * @return {list} List of affected pixels for which the vminsum may be affected.
+     */
+    recalculateEnergiesAndFindAffectedPixels(vseam) {
+        var queue = [];
+
+        // bottom to top, ignore last row
+        for (var row = this.height - 2; row >= 0; row--) {
+            var deletedCol = vseam[row];
+            var affectedCols = [];
+
+            for (var i = -1; i < 1; i ++) {
+                var col = deletedCol + i;
+
+                if (this.pixelInRange(col, row)) {
+                    this.energyMatrix[col][row] = this.energy(col, row);
+                    // enqueue pixel in range
+                    affectedCols.push(col);
+                }
+            }
+            queue[row] = affectedCols;
+        }
+        return queue;
+    }
+
+    /**
+     * Recalculate vminsum for affected pixels
+     */
+    recalculateVminsumForAffectedPixels(queue) {
+        var marked = {};
+        var enqueued = {};
+        var maxRow = -1;
+        // start at second to last row
+        var row = this.height - 2;
+        var enqueuedCols = queue[row];
+        // used later in loop so as not to go past borders
+        var lastCol = this.width - 1;
+
+        while (enqueuedCols) {
+
+            // This iterates in topological order (bottom to top)
+            var col = enqueuedCols.pop();
+            var pixelIndex = this.pixelToIndex(col, row);
+            if (enqueuedCols.length === 0) enqueuedCols = queue[--row];
+
+            // already explored this pixel
+            if (marked[pixelIndex]) continue;
+
+            marked[pixelIndex] = true;
+
+            var nodeEnergy = this.energyMatrix[col][row];
+            var oldVminsum = this.minsumMatrix[col][row];
+            this.minsumMatrix[col][row] = Number.POSITIVE_INFINITY;
+
+            // check three parents in row below
+            for (var i = Math.max(col - 1, 0); i < Math.min(col + 2, lastCol + 1); i ++) {
+                var parentVminsum = this.minsumMatrix[i][row + 1];
+                var newVminsum = parentVminsum + nodeEnergy;
+
+                if (newVminsum < this.minsumMatrix[col][row]) {
+                    this.minsumMatrix[col][row] = newVminsum;
+                    this.minxMatrix[col][row] = i;
+                }
+            }
+
+            // If we are on first row, no potentially affected children in row
+            // above so skip next step.
+            if (row === 0) continue;
+
+            // Only enqueue the children if the vminsum has changed
+            if (oldVminsum === this.minsumMatrix[col][row]) continue;
+
+            // enqueue three affected children from row above
+            for (var i = Math.max(col - 1, 0); i < Math.min(col + 2, lastCol + 1); i ++) {
+                var childIndex = this.pixelToIndex(i, row - 1);
+                if (!enqueued[childIndex]) {
+                    enqueued[childIndex] = true;
+                    queue[row - 1].push(i);
+                }
             }
         }
     }
 
     /**
+     * Removes vertical seam.
+     * Recalculates pixels depending on removed pixel.
+     */
+    removeVerticalSeam(vseam) {
+        this.removePixelsFromDataStructures(vseam);
+
+        var affectedPixels = this.recalculateEnergiesAndFindAffectedPixels(vseam);
+
+        this.recalculateVminsumForAffectedPixels(affectedPixels);
+    }
+
+    /*
      * Takes field as arg to print matrix, default is rgb, accepts energy.
      *
      */
     reDrawImage(options) {
         var field = options.field;
+        var actualSize = options.actualSize;
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.canvas.width = this.imageData.width;
         this.canvas.height = this.imageData.height;
 
-        if (options.actualSize) {
+        if (actualSize) {
             this.canvas.style.width = this.imageData.width + 'px';
             this.canvas.style.height = this.imageData.height + 'px';
         } else {
-            this.canvas.style.cssText = '';
+            this.canvas.style.width = 'inherit';
+            this.canvas.style.height = 'inherit';
         }
 
         if (field === 'energy' || field === 'vminsum' || (field !== this.imageData.dataField)) {
@@ -317,11 +411,13 @@ class SeamCarver {
                         var normalizedVal = ((val - 1000) / (this.maxVminsum - 1000)) * 255
                     } else if (field === 'minx') {
                         var val = this.minxMatrix[col][row];
-                        var direction = col - val + 1;
+                        var direction = val - col + 1;
                         for (var i = 0; i < 3; i ++) {
                             this.imageData.data[pos + i] = 0;
                         }
-                        if (direction >= 0 && direction <= 2) this.imageData.data[pos + direction] = 255;
+                        if (direction >= 0 && direction <= 2) {
+                            this.imageData.data[pos + direction] = 255;
+                        }
                         this.imageData.data[pos + 3] = 255;
                         continue;
                     } else {
@@ -383,7 +479,7 @@ class SeamCarver {
                         val = this.minxMatrix[x][y];
                     }
 
-                    if (val) {
+                    if (val || val === 0) {
                         lines += val.toFixed(2) + "\t";
                     } else {
                         lines += '-----\t';
