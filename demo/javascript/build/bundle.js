@@ -659,7 +659,6 @@ demo.createSelectImage = function () {
     });
     demo.selectImage.value = demo.config.images[0];
 };
-demo.createSelectImage();
 
 demo.changeImage = function (image) {
     demo.image.setAttribute('crossOrigin', '');
@@ -667,11 +666,12 @@ demo.changeImage = function (image) {
     demo.image.src = image || demo.image.src || demo.selectImage.value;
 };
 
-demo.reset = function (image) {
+demo.reset = function () {
     demo.changeImage();
 };
 
-demo.changeImage();
+demo.createSelectImage();
+demo.reset();
 
 },{"../../../SeamCarver":1,"keymaster":3}],3:[function(require,module,exports){
 //     keymaster.js

@@ -22,7 +22,10 @@ Everyone
     npm install -g local-web-server
     ws # navigate to http://localhost:8000
 
-##Optimizations
+##Current optimizations
+- When we remove a seam not all pixels are recalculated instead only pixels either side of the seam are enqueued to be recalculated. If the min sum of the affected pixel has not changed we need not enqueue it's children.
+
+##Potential optimizations
 
 - Iterate arrays in a CPU cache efficient way
 - Keep track of smallest on top row
@@ -30,9 +33,4 @@ Everyone
 - Could convert picture rgba array to [`Uint32Array` rgb number array](https://hacks.mozilla.org/2011/12/faster-canvas-pixel-manipulation-with-typed-arrays/) to save space
 - Do logical deletes on the energy matrix. This way the cost of deletion goes way down, with the cost of finding the neighbor when recalculating going up some. Would have to keep picture array as an array of `Uint8ClampedArray`s.
 - Potentially could add the pixels which we need to recalculate the energy for to a queue of nodes and relax there edges to adjacent pixels. If we do not find a smaller vminsum for any pixel on the queue we do not need to iterate its descendants.
-- Only recalculate energy of pixels right beside the removed seam. That is, only for those that removing the seam could change the energy. The cumulative sum unfortunately does have to be recalculated for almost every pixel.
 - There might be a (slightly) better way to remove the seam, with less conversion between coordinates.
-
-##Todo
-- Test remove vertical seam
-- Draw energy
