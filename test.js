@@ -70,6 +70,29 @@ describe('SeamCarver', function() {
         });
     });
 
+    it('should convert pixel to index and index to pixel', function(done) {
+        initSeamCarver("/images/6x5.png", function(sm) {
+            /*
+                00 01 02 03 04 05
+                06 07 08 09 10 11
+                12 13 14 15 16 17
+                18 19 20 21 22 23
+                24 25 26 27 28 29
+             */
+
+            assert.equal(sm.pixelToIndex(3, 1), 9 * 4);
+            assert.equal(sm.indexToX(9*4), 3);
+            assert.equal(sm.indexToY(9*4), 1);
+            assert.equal(sm.pixelToIndex(1, 3), 19 * 4);
+            assert.equal(sm.indexToX(19*4), 1);
+            assert.equal(sm.indexToY(19*4), 3);
+            assert.equal(sm.pixelToIndex(4, 3), 22 * 4);
+            assert.equal(sm.indexToX(22*4), 4);
+            assert.equal(sm.indexToY(22*4), 3);
+            done();
+        });
+    });
+
     it('should remove a vertical seam', function(done) {
         initSeamCarver("/images/6x5.png", function(sm) {
             assert.equal(sm.energyMatrix.length, 6);
