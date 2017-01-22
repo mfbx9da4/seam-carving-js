@@ -513,12 +513,12 @@ demo.config = {
     autoIterate: false,
     images: [
         'images/chameleon.png',
+        'images/tower.jpg',
         'images/3x4.png',
         'images/6x5.png',
         'images/12x10.png',
         'images/70x70.png',
         'images/200x100.png',
-        'images/casa-de-madeira.jpg',
         'images/HJocean.png',
         'images/IMG_4445.jpg',
         'images/white_building_in_field_by_mslash67.jpg',
@@ -569,7 +569,7 @@ demo.removeSeam = function (options) {
 demo.iterate = function () {
     demo.findSeam(demo.ctx);
     setTimeout(function () {
-        demo.removeSeam({reDrawImage: false})
+        demo.removeSeam({reDrawImage: true})
         demo.iteration++;
         if (demo.config.autoIterate) {
             demo.iterate();
