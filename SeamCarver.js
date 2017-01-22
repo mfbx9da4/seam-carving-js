@@ -108,7 +108,7 @@ class SeamCarver {
 
         var p = this.picture; // Just to make it more readable ...
 
-        // TODO: Should include self in this calculation
+        // TODO: Could include self in this calculation
         var score = Math.sqrt(
             (p[pos_xpost+RED]   - p[pos_xant+RED])  *(p[pos_xpost+RED]   - p[pos_xant+RED]) +
             (p[pos_xpost+GREEN] - p[pos_xant+GREEN])*(p[pos_xpost+GREEN] - p[pos_xant+GREEN]) +
@@ -292,7 +292,6 @@ class SeamCarver {
             var deletedCol = vseam[row];
             var affectedCols = [];
 
-            // TODO: check this covers all cases (up, down, left, right)
             for (var i = -1; i < 1; i ++) {
                 var col = deletedCol + i;
 
@@ -352,7 +351,6 @@ class SeamCarver {
             if (row === 0) continue;
 
             // Only enqueue the children if the vminsum has changed
-            // TODO: verify this assumption
             if (oldVminsum === this.minsumMatrix[col][row]) continue;
 
             // enqueue three affected children from row above
