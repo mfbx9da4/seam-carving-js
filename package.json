@@ -22,7 +22,8 @@
   },
   "scripts": {
     "testOnce": "gulp test",
-    "test": "gulp"
+    "test": "gulp",
+    "build": "gulp build"
   },
   "author": "David Alberto Adler dalberto.adler@gmail.com",
   "license": "MIT"
