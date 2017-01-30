@@ -1,6 +1,6 @@
 ##Install
 
-    npm install 
+    npm install seam-carving-js
 
 ##Install for contributors
 
