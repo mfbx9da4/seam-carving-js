@@ -1,19 +1,23 @@
 {
   "name": "seam-carving-js",
   "version": "1.0.0",
-  "description": "Seam Carving linear algorithm for image compression",
+  "description": "A Javascript implementation of Seam Carving algorithm (content-aware image resizing)",
   "repository": "https://github.com/mfbx9da4/seam-carving-js.git",
-  "main": "index.js",
-  "dependencies": {
+  "main": "SeamCarver.js",
+  "dependencies": {},
+  "devDependencies": {
+    "babel-preset-es2015": "^6.22.0",
+    "babelify": "^7.3.0",
+    "browserify": "^13.3.0",
     "canvas": "^1.3.12",
+    "chai": "^3.5.0",
     "gulp": "^3.9.1",
     "gulp-mocha": "^2.2.0",
-    "keymaster": "^1.6.2"
-  },
-  "devDependencies": {
-    "browserify": "^13.0.1",
-    "chai": "^3.5.0",
+    "gulp-sourcemaps": "^2.4.0",
+    "gulp-uglify": "^2.0.1",
     "gulp-util": "^3.0.7",
+    "keymaster": "^1.6.2",
+    "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   },
   "scripts": {

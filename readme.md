@@ -1,5 +1,9 @@
 ##Install
 
+    npm install 
+
+##Install for contributors
+
 OSX requires
 
     brew install pkg-config cairo libpng jpeg giflib
@@ -13,6 +17,10 @@ Everyone
 
     npm install
 
+##Build
+
+    gulp build
+    
 ##Test
 
     npm run test
