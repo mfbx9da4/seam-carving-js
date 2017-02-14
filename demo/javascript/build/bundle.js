@@ -566,13 +566,18 @@ demo.removeSeam = function (options) {
     demo.currentSeam = [];
 };
 
-demo.iterate = function () {
+demo.iterate = function() {
+    demo.config.autoIterate = !demo.config.autoIterate;
+    demo.doIterate();
+}
+
+demo.doIterate = function () {
     demo.findSeam(demo.ctx);
     setTimeout(function () {
         demo.removeSeam({reDrawImage: true})
         demo.iteration++;
         if (demo.config.autoIterate) {
-            demo.iterate();
+            demo.doIterate();
         } else {
             demo.smc.reDrawImage(demo.config.draw);
         }
@@ -597,7 +602,6 @@ demo.togglePixelation = function () {
 }
 
 key('i', function () {
-    demo.config.autoIterate = !demo.config.autoIterate;
     demo.iterate();
 });
 
