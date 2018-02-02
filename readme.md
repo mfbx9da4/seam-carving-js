@@ -1,8 +1,8 @@
-##Install
+## Install
 
     npm install seam-carving-js
 
-##Install for contributors
+## Install for contributors
 
 OSX requires
 
@@ -17,23 +17,23 @@ Everyone
 
     npm install
 
-##Build
+## Build
 
     gulp build
     
-##Test
+## Test
 
     npm run test
 
-##Run demo
+## Run demo
 
     npm install -g local-web-server
     ws # navigate to http://localhost:8000
 
-##Current optimizations
+## Current optimizations
 - When we remove a seam not all pixels are recalculated instead only pixels either side of the seam are enqueued to be recalculated. If the min sum of the affected pixel has not changed we need not enqueue it's children.
 
-##Potential optimizations
+## Potential optimizations
 
 - Iterate arrays in a CPU cache efficient way
 - Keep track of smallest on top row
