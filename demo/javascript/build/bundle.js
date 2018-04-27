@@ -568,6 +568,12 @@ demo.removeSeam = function (options) {
 
 demo.iterate = function() {
     demo.config.autoIterate = !demo.config.autoIterate;
+    var buttons = document.querySelectorAll('.iterate-btn')
+    var message = demo.config.autoIterate ? 'Stop <code>(I)</code>' : 'Run <code>(I)</code>'
+    for (var i = 0; i < buttons.length; i++) {
+       var button = buttons[i];
+       button.innerHTML = message;
+    }
     demo.doIterate();
 }
 
@@ -600,6 +606,10 @@ demo.togglePixelation = function () {
         demo.canvas.style.imageRendering = 'pixelated';
     }
 }
+
+key('command+/, control+/', function () {
+    alert('<h1>hey</h1><p>asdfasdf</p>')
+})
 
 key('i', function () {
     demo.iterate();
