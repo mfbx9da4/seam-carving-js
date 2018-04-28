@@ -577,6 +577,14 @@ demo.iterate = function() {
     demo.doIterate();
 }
 
+demo.setFavicon = function(imageDataUrl) {
+    var link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+    link.type = 'image/x-icon';
+    link.rel = 'shortcut icon';
+    link.href = imageDataUrl;
+    document.getElementsByTagName('head')[0].appendChild(link);
+}
+
 demo.doIterate = function () {
     demo.findSeam(demo.ctx);
     setTimeout(function () {
@@ -677,7 +685,11 @@ demo.createSelectImage = function () {
 demo.changeImage = function (image) {
     demo.image.setAttribute('crossOrigin', '');
     demo.image.crossOrigin = 'Anonymous';
-    demo.image.src = image || demo.image.src || demo.selectImage.value;
+    var value = image || demo.image.src || demo.selectImage.value
+    if (value === demo.image.src) {
+        demo.image.onload()
+    }
+    demo.image.src = value;
 };
 
 demo.reset = function () {

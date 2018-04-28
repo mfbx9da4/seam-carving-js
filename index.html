@@ -2,6 +2,8 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Seam Carver Demo</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -111,6 +113,10 @@
         <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
           <label>Change image: <select class="form-control" onchange="demo.changeImage(this.value)" name="select-image" id="select-image">
           </select></label>
+          <div class="btn-group mr-2" role="group" aria-label="First group">
+            <button class="btn btn-outline-secondary" onclick="demo.togglePixelation()">Toggle pixelation <code>(P)</code></button>
+            <button class="btn btn-outline-secondary" onclick="demo.toggleActualSize()">Toggle actual size <code>(A)</code></button>
+          </div>
         </div>
       </div>
     </section>
