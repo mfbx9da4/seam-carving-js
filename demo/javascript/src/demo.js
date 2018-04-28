@@ -199,3 +199,8 @@ demo.reset = function () {
 
 demo.createSelectImage();
 demo.reset();
+
+// Activate bootstrap
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})

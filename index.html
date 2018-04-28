@@ -99,14 +99,15 @@
             <button class="btn btn-outline-secondary" onclick="demo.reset()">Reset <code>(ESC)</code></button>
           </div>
           <div class="btn-group mr-2" role="group" aria-label="First group">
-            <button class="btn btn-outline-secondary" onclick="demo.togglePixelation()">Toggle pixelation <code>(P)</code></button>
-            <button class="btn btn-outline-secondary" onclick="demo.toggleActualSize()">Toggle actual size <code>(A)</code></button>
+            <button class="btn btn-outline-secondary" onclick="demo.togglePixelation()" data-toggle="tooltip" title="Render the pixels as individual sharp squares.">Toggle pixelation <code>(P)</code></button>
+            <button class="btn btn-outline-secondary" onclick="demo.toggleActualSize()">Toggle Zoom <code>(A)</code></button>
           </div>
           <div class="btn-group mr-2" role="group" aria-label="First group">
-            <button class="btn btn-outline-secondary" onclick="demo.reDraw('energy')">Energy <code>(E)</code></button>
+            <button class="btn btn-outline-secondary" onclick="demo.reDraw()" data-toggle="tooltip" title="Original">Color <code>(C)</code></button>
+            <button class="btn btn-outline-secondary" onclick="demo.reDraw('energy')" data-toggle="tooltip" title="The energy of a pixel is it's contrast to surrounding pixels. More white means more contrast."
+            >Energy <code>(E)</code></button>
             <button class="btn btn-outline-secondary" onclick="demo.reDraw('minsum')">Min sum <code>(S)</code></button>
             <button class="btn btn-outline-secondary" onclick="demo.reDraw('minx')">Minx <code>(X)</code></button>
-            <button class="btn btn-outline-secondary" onclick="demo.reDraw()">Color <code>(C)</code></button>
           </div>
         </div>
 
@@ -114,7 +115,7 @@
           <label>Change image: <select class="form-control" onchange="demo.changeImage(this.value)" name="select-image" id="select-image">
           </select></label>
           <div class="btn-group mr-2" role="group" aria-label="First group">
-            <button class="btn btn-outline-secondary" onclick="demo.togglePixelation()">Toggle pixelation <code>(P)</code></button>
+            <button class="btn btn-outline-secondary" onclick="demo.togglePixelation()" data-toggle="tooltip" title="Render the pixels as individual sharp squares.">Toggle pixelation <code>(P)</code></button>
             <button class="btn btn-outline-secondary" onclick="demo.toggleActualSize()">Toggle actual size <code>(A)</code></button>
           </div>
         </div>

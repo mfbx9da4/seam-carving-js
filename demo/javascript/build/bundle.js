@@ -699,6 +699,11 @@ demo.reset = function () {
 demo.createSelectImage();
 demo.reset();
 
+// Activate bootstrap
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
+
 },{"../../../SeamCarver":1,"keymaster":3}],3:[function(require,module,exports){
 //     keymaster.js
 //     (c) 2011-2013 Thomas Fuchs
