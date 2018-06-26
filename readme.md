@@ -1,3 +1,5 @@
+# Seam Carving JS
+
 Javascript implementation of a content-aware image resizing algorithm called seam carving. <a href="https://en.wikipedia.org/wiki/Seam_carving">Seam carving</a> crops an image by removing the "least important" pixels in an image. An "unimportant" pixel is defined as a pixel which is very similar to its surrounding pixels. A seam is a one pixel column in the image which can zig-zag between adjancent columns.
 
 ## Install
