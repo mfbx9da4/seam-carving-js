@@ -75,10 +75,13 @@
           <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Run Demo</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Understand Algorithm</a>
+          <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Advanced</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Change Image</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="about-tab" data-toggle="tab" href="#about" role="tab" aria-controls="about" aria-selected="false">About</a>
         </li>
       </ul>
 
@@ -117,6 +120,26 @@
           <div class="btn-group mr-2" role="group" aria-label="First group">
             <button class="btn btn-outline-secondary" onclick="demo.togglePixelation()" data-toggle="tooltip" title="Render the pixels as individual sharp squares.">Toggle pixelation <code>(P)</code></button>
             <button class="btn btn-outline-secondary" onclick="demo.toggleActualSize()">Toggle actual size <code>(A)</code></button>
+          </div>
+        </div>
+        <div class="tab-pane fade" id="about" role="tabpanel" aria-labelledby="about-tab">
+          <div class="container">
+            <p>Javascript implementation of a content-aware image resizing algorithm called seam carving. <a href="https://en.wikipedia.org/wiki/Seam_carving">Seam carving</a> crops an image by removing the "least important" pixels in an image. An "unimportant" pixel is defined as a pixel which is very similar to its surrounding pixels. A seam is a one pixel column in the image which can zig-zag between adjancent columns.</p>
+
+            <p>
+              <ol>
+                <li><a href="javascript:demo.findSeam()">Find the seam of lowest energy</a>.</li>
+                <li>View the <a href="javascript:demo.reDraw('energy')">energy</a> of the pixels. Brighter pixels are more important</li>
+                <li>View the <a href="javascript:demo.reDraw('minsum')">cumulative minimum sum</a> of the pixels going from the top to the bottom edge. Represents the cheapest possible seams.</li>
+                <li>View the <a href="javascript:demo.reDraw('minx')">minx</a>. This represents which direction is cheapest from each pixel. Red is down and to the left, Green is straight down and Blue is down and to the right.</li>
+                <li><a href="javascript:demo.iterate()">Run the demo</a>.</li>
+                <li><a href="javascript:demo.changeImage('images/12x10.png')">Change the image</a>.</li>
+                <li><a href="javascript:demo.toggleActualSize()">Toggle actual size</a>.</li>
+                <li><a href="javascript:demo.reDraw()">Redraw color</a>.</li>
+              </ol>
+            </p>
+
+            <p>Made with ❤️ by <a href="https://davidalbertoadler.com">David Alberto Adler</a></p>
           </div>
         </div>
       </div>
