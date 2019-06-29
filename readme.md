@@ -39,6 +39,7 @@ Everyone
 
 ## Potential optimizations
 
+- Move SeamCarver to web worker
 - Iterate arrays in a CPU cache efficient way
 - Keep track of smallest on top row
 - Have three matrices, one for minx, one for vminsum and one for energies so that we can use typed arrays
